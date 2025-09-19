@@ -20,6 +20,93 @@ require_once(BASE_PATH . "/template/admin/layouts/head-tag.php");
     </div>
 </div>
 
+<!-- Views Chart Section - Moved to top -->
+<div class="row g-4 mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pb-0">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="card-title text-dark mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        Views Analytics - Last 7 Days
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="refreshChart()" id="refreshBtn">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 400px;">
+                    <canvas id="viewsChart"></canvas>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-primary mb-1"><?= number_format($postsViews['SUM(view)']) ?></h6>
+                            <small class="text-muted">Total Views</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-success mb-1">
+                                <?php 
+                                $avgViews = $postCount['COUNT(*)'] > 0 ? round($postsViews['SUM(view)'] / $postCount['COUNT(*)']) : 0;
+                                echo number_format($avgViews); 
+                                ?>
+                            </h6>
+                            <small class="text-muted">Avg per Post</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-info mb-1"><?= number_format($postCount['COUNT(*)']) ?></h6>
+                            <small class="text-muted">Total Posts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-warning mb-1">
+                                <?php
+                                // Tính views hôm nay từ posts được update hôm nay
+                                $todayViews = 0;
+                                $today = date('Y-m-d');
+                                
+                                // Lấy tổng views của posts được cập nhật hôm nay
+                                $todayViewsResult = $db->select("
+                                    SELECT SUM(view) as total_views 
+                                    FROM posts 
+                                    WHERE DATE(updated_at) = '$today' AND view > 0
+                                ")->fetch();
+                                
+                                $todayViews = $todayViewsResult['total_views'] ? (int)$todayViewsResult['total_views'] : 0;
+                                
+                                // Nếu không có, lấy từ created_at
+                                if($todayViews == 0) {
+                                    foreach($viewsLast7Days as $dayData) {
+                                        if($dayData['date'] == $today) {
+                                            $todayViews = $dayData['total_views'];
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                echo number_format($todayViews);
+                                ?>
+                            </h6>
+                            <small class="text-muted">Today's Views</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row g-4 mb-5">
     <div class="col-sm-6 col-xl-3">
@@ -300,112 +387,43 @@ require_once(BASE_PATH . "/template/admin/layouts/head-tag.php");
     </div>
 </div>
 
-<!-- Views Chart Section -->
-<div class="row g-4 mb-5">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pb-0">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h5 class="card-title text-dark mb-0">
-                        <i class="fas fa-chart-line text-primary me-2"></i>
-                        Views Analytics - Last 7 Days
-                    </h5>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-download me-1"></i>Export
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="refreshChart()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div style="position: relative; height: 400px;">
-                    <canvas id="viewsChart"></canvas>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-md-3 text-center">
-                        <div class="border rounded p-3">
-                            <h6 class="text-primary mb-1"><?= number_format($postsViews['SUM(view)']) ?></h6>
-                            <small class="text-muted">Total Views</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <div class="border rounded p-3">
-                            <h6 class="text-success mb-1">
-                                <?php 
-                                $avgViews = $postCount['COUNT(*)'] > 0 ? round($postsViews['SUM(view)'] / $postCount['COUNT(*)']) : 0;
-                                echo number_format($avgViews); 
-                                ?>
-                            </h6>
-                            <small class="text-muted">Avg Views/Post</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <div class="border rounded p-3">
-                            <h6 class="text-info mb-1"><?= $postCount['COUNT(*)'] ?></h6>
-                            <small class="text-muted">Total Posts</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <div class="border rounded p-3">
-                            <h6 class="text-warning mb-1">
-                                <?php
-                                $todayViews = 0;
-                                foreach($viewsLast7Days as $dayData) {
-                                    if($dayData['date'] == date('Y-m-d')) {
-                                        $todayViews = $dayData['total_views'];
-                                        break;
-                                    }
-                                }
-                                echo number_format($todayViews);
-                                ?>
-                            </h6>
-                            <small class="text-muted">Today's Views</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Debug: Log data from PHP
+console.log('Views data from PHP:', <?= json_encode($viewsLast7Days) ?>);
+
 // Chart configuration
 const ctx = document.getElementById('viewsChart').getContext('2d');
 
 // Prepare data from PHP
-const chartData = {
-    labels: [
-        <?php
-        $dates = [];
-        $views = [];
-        
-        // Tạo mảng 7 ngày gần đây
-        for($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-{$i} days"));
-            $formattedDate = date('M j', strtotime($date));
-            $dates[] = "'" . $formattedDate . "'";
-            
-            // Tìm views cho ngày này
-            $dayViews = 0;
-            foreach($viewsLast7Days as $dayData) {
-                if($dayData['date'] == $date) {
-                    $dayViews = $dayData['total_views'];
-                    break;
-                }
-            }
-            $views[] = $dayViews;
+<?php
+$chartLabels = [];
+$chartData = [];
+
+// Tạo mảng 7 ngày gần đây
+for($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-{$i} days"));
+    $formattedDate = date('M j', strtotime($date));
+    $chartLabels[] = $formattedDate;
+    
+    // Tìm views cho ngày này
+    $dayViews = 0;
+    foreach($viewsLast7Days as $dayData) {
+        if($dayData['date'] == $date) {
+            $dayViews = (int)$dayData['total_views'];
+            break;
         }
-        echo implode(',', $dates);
-        ?>
-    ],
+    }
+    $chartData[] = $dayViews;
+}
+?>
+
+const chartConfig = {
+    labels: <?= json_encode($chartLabels) ?>,
     datasets: [{
         label: 'Daily Views',
-        data: [<?= implode(',', $views) ?>],
+        data: <?= json_encode($chartData) ?>,
         borderColor: 'rgb(54, 162, 235)',
         backgroundColor: 'rgba(54, 162, 235, 0.1)',
         borderWidth: 3,
@@ -418,6 +436,8 @@ const chartData = {
         pointHoverRadius: 8
     }]
 };
+
+console.log('Chart config:', chartConfig);
 
 // Chart options
 const chartOptions = {
@@ -489,23 +509,62 @@ const chartOptions = {
 // Create chart
 const viewsChart = new Chart(ctx, {
     type: 'line',
-    data: chartData,
+    data: chartConfig,
     options: chartOptions
 });
 
 // Refresh chart function
 function refreshChart() {
-    // Add loading animation
-    const refreshBtn = event.target.closest('button');
+    const refreshBtn = document.getElementById('refreshBtn');
     const originalContent = refreshBtn.innerHTML;
     refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
     refreshBtn.disabled = true;
     
-    // Simulate refresh (in real app, you'd fetch new data)
+    // Hiển thị thông báo đang cập nhật
+    const toast = document.createElement('div');
+    toast.className = 'position-fixed top-0 end-0 p-3';
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                <strong class="me-auto">Chart Update</strong>
+                <small>just now</small>
+            </div>
+            <div class="toast-body">
+                Refreshing view data...
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    // Simulate refresh (reload page to get fresh data)
     setTimeout(() => {
-        location.reload(); // Reload page to get fresh data
-    }, 1000);
+        location.reload();
+    }, 1500);
 }
+
+// Auto refresh every 30 seconds if user is viewing a post
+setInterval(() => {
+    // Chỉ auto refresh nếu user không tương tác trong 10 giây
+    if (document.visibilityState === 'visible') {
+        const lastActivity = localStorage.getItem('lastActivity') || Date.now();
+        if (Date.now() - lastActivity > 30000) { // 30 seconds
+            console.log('Auto refreshing chart data...');
+            // Refresh dữ liệu mà không reload page
+            location.reload();
+        }
+    }
+}, 30000);
+
+// Track user activity
+document.addEventListener('mousemove', () => {
+    localStorage.setItem('lastActivity', Date.now());
+});
+
+document.addEventListener('keypress', () => {
+    localStorage.setItem('lastActivity', Date.now());
+});
 
 // Add hover effects to stats cards
 document.querySelectorAll('.border.rounded.p-3').forEach(card => {

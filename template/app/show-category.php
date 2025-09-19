@@ -439,20 +439,103 @@ require_once(BASE_PATH . '/template/app/layouts/header.php');
             </div>
         </div>
     </section>
+
+    <!-- Category Header with Stats -->
+    <section class="py-4 bg-light">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-2">
+                            <li class="breadcrumb-item">
+                                <a href="<?= url('/') ?>">Home</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <span>Categories</span>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                <?= $category['name'] ?>
+                            </li>
+                        </ol>
+                    </nav>
+                    <div class="d-flex align-items-center">
+                        <div class="category-icon me-3" style="font-size: 2rem; color: #007bff;">
+                            <i class="<?= getCategoryIcon($category['name']) ?>"></i>
+                        </div>
+                        <div>
+                            <h1 class="h3 mb-1"><?= $category['name'] ?></h1>
+                            <p class="text-muted mb-0"><?= count($categoryPosts) ?> articles in this category</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex justify-content-md-end gap-3">
+                        <div class="text-center">
+                            <div class="h5 mb-0 text-primary"><?= count($categoryPosts) ?></div>
+                            <small class="text-muted">Articles</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="h5 mb-0 text-success">
+                                <?php 
+                                $totalViews = array_sum(array_column($categoryPosts, 'view'));
+                                echo number_format($totalViews);
+                                ?>
+                            </div>
+                            <small class="text-muted">Total Views</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="h5 mb-0 text-warning">
+                                <?php 
+                                $totalComments = array_sum(array_column($categoryPosts, 'comments_count'));
+                                echo $totalComments;
+                                ?>
+                            </div>
+                            <small class="text-muted">Comments</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     <?php endif; ?>
 
     <!-- Category Posts -->
     <section class="py-5">
         <div class="container">
             <?php if(!empty($categoryPosts)) { ?>
+            <!-- Filter and Sort Options -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4 class="mb-0">All Articles (<?= count($categoryPosts) ?>)</h4>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm active" onclick="sortPosts('newest')">
+                            <i class="fas fa-clock me-1"></i>Newest
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="sortPosts('popular')">
+                            <i class="fas fa-eye me-1"></i>Most Viewed
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="sortPosts('comments')">
+                            <i class="fas fa-comments me-1"></i>Most Comments
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Posts Grid -->
-            <div class="posts-grid">
+            <div class="posts-grid" id="postsGrid">
                 <?php foreach ($categoryPosts as $post) { ?>
-                <article class="post-card">
+                <article class="post-card" data-date="<?= strtotime($post['created_at']) ?>" data-views="<?= $post['view'] ?>" data-comments="<?= $post['comments_count'] ?>">
                     <!-- Post Image -->
                     <div class="post-image">
                         <img src="<?= asset($post['image']) ?>" 
                              alt="<?= $post['title'] ?>">
+                        <div class="post-overlay">
+                            <a href="<?= url('show-post/' . $post['id']) ?>" class="btn btn-primary btn-sm">
+                                <i class="fas fa-book-open me-1"></i>Read More
+                            </a>
+                        </div>
                     </div>
                     
                     <!-- Post Content -->
@@ -464,7 +547,7 @@ require_once(BASE_PATH . '/template/app/layouts/header.php');
                         </h2>
                         
                         <div class="post-excerpt">
-                            <?= isset($post['summary']) && strlen($post['summary']) > 80 ? substr($post['summary'], 0, 80) . '...' : (isset($post['body']) ? substr(strip_tags($post['body']), 0, 80) . '...' : '') ?>
+                            <?= substr(strip_tags($post['body']), 0, 120) ?>...
                         </div>
                         
                         <div class="post-meta">
@@ -475,11 +558,11 @@ require_once(BASE_PATH . '/template/app/layouts/header.php');
                             <div class="d-flex gap-3">
                                 <div class="post-date">
                                     <i class="fas fa-calendar me-1"></i>
-                                    <?= $post['created_at'] ?>
+                                    <?= date('M j, Y', strtotime($post['created_at'])) ?>
                                 </div>
-                                <div class="post-comments">
-                                    <i class="fas fa-comments me-1"></i>
-                                    <?= $post['comments_count'] ?>
+                                <div class="post-stats">
+                                    <i class="fas fa-eye me-1"></i><?= $post['view'] ?>
+                                    <i class="fas fa-comments ms-2 me-1"></i><?= $post['comments_count'] ?>
                                 </div>
                             </div>
                         </div>
@@ -575,6 +658,52 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// Posts sorting functionality
+function sortPosts(sortBy) {
+    const postsGrid = document.getElementById('postsGrid');
+    const posts = Array.from(postsGrid.children);
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+    
+    // Sort posts
+    posts.sort((a, b) => {
+        switch(sortBy) {
+            case 'newest':
+                return parseInt(b.dataset.date) - parseInt(a.dataset.date);
+            case 'popular':
+                return parseInt(b.dataset.views) - parseInt(a.dataset.views);
+            case 'comments':
+                return parseInt(b.dataset.comments) - parseInt(a.dataset.comments);
+            default:
+                return 0;
+        }
+    });
+    
+    // Reorder DOM elements
+    posts.forEach(post => {
+        postsGrid.appendChild(post);
+    });
+    
+    // Add animation
+    postsGrid.style.opacity = '0.7';
+    setTimeout(() => {
+        postsGrid.style.opacity = '1';
+    }, 300);
+}
+
+// Load more functionality (if needed)
+function loadMorePosts() {
+    // This would typically load more posts via AJAX
+    // For now, just hide the button
+    document.getElementById('loadMoreBtn').style.display = 'none';
+}
 </script>
 
 <?php require_once(BASE_PATH . '/template/app/layouts/footer.php'); ?>

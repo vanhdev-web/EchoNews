@@ -235,8 +235,14 @@
         }
         
         /* Minimalistic Search */
+        .search-container {
+            position: relative;
+        }
+        
         .search-form {
             position: relative;
+            display: flex;
+            align-items: center;
         }
         
         .search-form input {
@@ -265,6 +271,79 @@
             border: none;
             color: var(--text-muted);
             padding: 0;
+            z-index: 10;
+        }
+
+        /* Search Results Dropdown */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+
+        .search-result-summary {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+
+        .search-result-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-category {
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .search-result-views {
+            color: #999;
+            font-size: 11px;
+        }
+
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
         }
         
         /* Minimal Banner */
@@ -297,6 +376,91 @@
             }
         }
     </style>
+    
+    <!-- Search JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        let searchTimeout;
+        
+        // Debounced search function
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value.trim();
+            
+            if (searchTerm.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                performLiveSearch(searchTerm);
+            }, 300);
+        });
+        
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-container')) {
+                searchResults.style.display = 'none';
+            }
+        });
+        
+        // Show results when focusing on search input
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length >= 2) {
+                searchResults.style.display = 'block';
+            }
+        });
+        
+        function performLiveSearch(searchTerm) {
+            // Create AJAX request
+            fetch(`<?= url('/') ?>?search=${encodeURIComponent(searchTerm)}&ajax=1`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+            });
+        }
+        
+        function displaySearchResults(posts) {
+            if (posts.length === 0) {
+                searchResults.innerHTML = '<div class="no-results">No articles found</div>';
+            } else {
+                let html = '';
+                posts.slice(0, 5).forEach(post => { // Show max 5 results
+                    html += `
+                        <div class="search-result-item" onclick="goToPost(${post.id})">
+                            <div class="search-result-title">${post.title}</div>
+                            <div class="search-result-summary">${post.summary || post.body.substring(0, 100) + '...'}</div>
+                            <div class="search-result-meta">
+                                <span class="search-result-category">${post.category}</span>
+                                <span class="search-result-views">${post.view} views</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                searchResults.innerHTML = html;
+            }
+            searchResults.style.display = 'block';
+        }
+        
+        // Navigate to post
+        function goToPost(postId) {
+            window.location.href = `<?= url('/post') ?>/${postId}`;
+        }
+        
+        // Make goToPost globally accessible
+        window.goToPost = goToPost;
+    });
+    </script>
 </head>
 
 <body>
@@ -361,12 +525,16 @@
                 </ul>
 
                 <!-- Search Form -->
-                <form class="search-form" method="GET" action="<?= url('/') ?>">
-                    <button type="submit" class="search-btn">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <input type="text" name="search" class="form-control" placeholder="Search articles...">
-                </form>
+                <div class="search-container" style="position: relative;">
+                    <form class="search-form" method="GET" action="<?= url('/') ?>" id="searchForm">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search articles..." autocomplete="off" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+                    </form>
+                    <!-- Search Results Dropdown -->
+                    <div id="searchResults" class="search-results" style="display: none;"></div>
+                </div>
             </div>
         </div>
     </nav>

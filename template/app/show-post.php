@@ -1011,7 +1011,7 @@
                         </div>
                         <div class="meta-item">
                             <i class="fas fa-eye"></i>
-                            <span><?= isset($post['views']) ? number_format($post['views']) : rand(500, 5000) ?> Views</span>
+                            <span><?= number_format($post['view']) ?> Views</span>
                         </div>
                     </div>
                 </div>

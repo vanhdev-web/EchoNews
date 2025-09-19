@@ -149,6 +149,52 @@
         margin-right: 1rem;
     }
 
+    /* Search Results Styles */
+    .search-results-section {
+        background: #f8f9fa;
+        min-height: 60vh;
+    }
+
+    .search-header h2 {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .search-result-card {
+        transition: all 0.3s ease;
+        height: 200px;
+    }
+
+    .search-result-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .search-result-card .card-title a:hover {
+        color: var(--bs-primary) !important;
+    }
+
+    .no-results {
+        background: white;
+        border-radius: 10px;
+        padding: 3rem;
+    }
+
+    .search-result-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+        .search-result-card {
+            height: auto;
+        }
+        .search-result-card img {
+            height: 200px;
+        }
+    }
+
     .hero-side-post {
         position: relative;
         height: 190px;
@@ -389,6 +435,78 @@
 </style>
 
 <main>
+    <?php if(isset($_GET['search']) && !empty($_GET['search'])): ?>
+    <!-- Search Results Section -->
+    <section class="search-results-section py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="search-header mb-4">
+                        <h2 class="mb-2">Search Results for: <span class="text-primary">"<?= htmlspecialchars($_GET['search']) ?>"</span></h2>
+                        <p class="text-muted"><?= count($lastPosts) ?> articles found</p>
+                    </div>
+                </div>
+            </div>
+            
+            <?php if(empty($lastPosts)): ?>
+            <div class="row">
+                <div class="col-12">
+                    <div class="no-results text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h3 class="text-muted">No articles found</h3>
+                        <p class="text-muted">Try searching with different keywords</p>
+                        <a href="<?= url('/') ?>" class="btn btn-primary">Back to Homepage</a>
+                    </div>
+                </div>
+            </div>
+            <?php else: ?>
+            <div class="row g-4">
+                <?php foreach($lastPosts as $post): ?>
+                <div class="col-lg-6">
+                    <article class="search-result-card card border-0 shadow-sm h-100">
+                        <div class="row g-0 h-100">
+                            <div class="col-md-4">
+                                <img src="<?= asset($post['image']) ?>" alt="<?= $post['title'] ?>" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <div>
+                                        <span class="badge bg-primary mb-2"><?= $post['category'] ?></span>
+                                        <h5 class="card-title">
+                                            <a href="<?= url('show-post/' . $post['id']) ?>" class="text-decoration-none text-dark"><?= $post['title'] ?></a>
+                                        </h5>
+                                        <p class="card-text text-muted small"><?= substr(strip_tags($post['body']), 0, 150) ?>...</p>
+                                    </div>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="author-info">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user"></i> <?= $post['username'] ?>
+                                                </small>
+                                            </div>
+                                            <div class="post-stats">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-eye"></i> <?= $post['view'] ?>
+                                                    <i class="fas fa-comments ms-2"></i> <?= $post['comments_count'] ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i> <?= date('M j, Y', strtotime($post['created_at'])) ?>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+    </section>
+    
+    <?php else: ?>
     <!-- Hero Section - Newspaper Layout -->
     <section class="newspaper-hero">
         <div class="container">
@@ -542,7 +660,7 @@
                             </h3>
                             <div class="news-card-meta">
                                 <span><i class="fas fa-user"></i> <?= $popular['username'] ?></span>
-                                <span><i class="fas fa-eye"></i> <?= isset($popular['view']) ? number_format($popular['view']) : rand(2000, 8000) ?> views</span>
+                                <span><i class="fas fa-eye"></i> <?= number_format($popular['view']) ?> views</span>
                             </div>
                             <p class="news-card-excerpt">
                                 <?= isset($popular['summary']) ? substr(strip_tags($popular['summary']), 0, 120) : substr(strip_tags($popular['body']), 0, 120) ?>...
@@ -583,7 +701,7 @@
                                     <i class="fas fa-user"></i> <?= $popular['username'] ?>
                                 </span>
                                 <span>
-                                    <i class="fas fa-eye"></i> <?= isset($popular['view']) ? number_format($popular['view']) : rand(500, 2000) ?>
+                                    <i class="fas fa-eye"></i> <?= number_format($popular['view']) ?>
                                 </span>
                             </div>
                             <p class="small-news-excerpt mb-0" style="font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
@@ -782,5 +900,7 @@
         });
     });
 </script>
+
+<?php endif; ?>
 
 <?php require_once "template/app/layouts/footer.php" ?>
