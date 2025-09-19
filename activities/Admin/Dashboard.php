@@ -27,6 +27,14 @@ class Dashboard extends Admin
 
         $lastComments = $db->select('SELECT comments.id, comments.comment, comments.status, comments.post_id, users.username FROM comments, users WHERE comments.user_id = users.id order by comments.created_at DESC LIMIT 0,5 ;');
 
+        // Dữ liệu cho biểu đồ views theo ngày (7 ngày gần đây)
+        $viewsLast7Days = $db->select("
+            SELECT DATE(created_at) as date, SUM(view) as total_views 
+            FROM posts 
+            WHERE created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) 
+            GROUP BY DATE(created_at) 
+            ORDER BY date ASC
+        ");
 
         require_once (BASE_PATH . "/template/admin/dashboard/index.php");
     }

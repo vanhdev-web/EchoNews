@@ -300,6 +300,228 @@ require_once(BASE_PATH . "/template/admin/layouts/head-tag.php");
     </div>
 </div>
 
+<!-- Views Chart Section -->
+<div class="row g-4 mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pb-0">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="card-title text-dark mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        Views Analytics - Last 7 Days
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="refreshChart()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 400px;">
+                    <canvas id="viewsChart"></canvas>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-primary mb-1"><?= number_format($postsViews['SUM(view)']) ?></h6>
+                            <small class="text-muted">Total Views</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-success mb-1">
+                                <?php 
+                                $avgViews = $postCount['COUNT(*)'] > 0 ? round($postsViews['SUM(view)'] / $postCount['COUNT(*)']) : 0;
+                                echo number_format($avgViews); 
+                                ?>
+                            </h6>
+                            <small class="text-muted">Avg Views/Post</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-info mb-1"><?= $postCount['COUNT(*)'] ?></h6>
+                            <small class="text-muted">Total Posts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="border rounded p-3">
+                            <h6 class="text-warning mb-1">
+                                <?php
+                                $todayViews = 0;
+                                foreach($viewsLast7Days as $dayData) {
+                                    if($dayData['date'] == date('Y-m-d')) {
+                                        $todayViews = $dayData['total_views'];
+                                        break;
+                                    }
+                                }
+                                echo number_format($todayViews);
+                                ?>
+                            </h6>
+                            <small class="text-muted">Today's Views</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart configuration
+const ctx = document.getElementById('viewsChart').getContext('2d');
+
+// Prepare data from PHP
+const chartData = {
+    labels: [
+        <?php
+        $dates = [];
+        $views = [];
+        
+        // Tạo mảng 7 ngày gần đây
+        for($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-{$i} days"));
+            $formattedDate = date('M j', strtotime($date));
+            $dates[] = "'" . $formattedDate . "'";
+            
+            // Tìm views cho ngày này
+            $dayViews = 0;
+            foreach($viewsLast7Days as $dayData) {
+                if($dayData['date'] == $date) {
+                    $dayViews = $dayData['total_views'];
+                    break;
+                }
+            }
+            $views[] = $dayViews;
+        }
+        echo implode(',', $dates);
+        ?>
+    ],
+    datasets: [{
+        label: 'Daily Views',
+        data: [<?= implode(',', $views) ?>],
+        borderColor: 'rgb(54, 162, 235)',
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: 'rgb(54, 162, 235)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+    }]
+};
+
+// Chart options
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        title: {
+            display: true,
+            text: 'Daily Views Trend',
+            font: {
+                size: 16,
+                weight: 'bold'
+            }
+        },
+        legend: {
+            display: false
+        },
+        tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+                label: function(context) {
+                    return 'Views: ' + context.parsed.y.toLocaleString();
+                }
+            }
+        }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            grid: {
+                color: 'rgba(0, 0, 0, 0.1)'
+            },
+            ticks: {
+                font: {
+                    size: 12
+                },
+                callback: function(value) {
+                    return value.toLocaleString();
+                }
+            }
+        },
+        x: {
+            grid: {
+                display: false
+            },
+            ticks: {
+                font: {
+                    size: 12
+                }
+            }
+        }
+    },
+    interaction: {
+        intersect: false,
+        mode: 'index'
+    },
+    animation: {
+        duration: 2000,
+        easing: 'easeInOutQuart'
+    }
+};
+
+// Create chart
+const viewsChart = new Chart(ctx, {
+    type: 'line',
+    data: chartData,
+    options: chartOptions
+});
+
+// Refresh chart function
+function refreshChart() {
+    // Add loading animation
+    const refreshBtn = event.target.closest('button');
+    const originalContent = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+    refreshBtn.disabled = true;
+    
+    // Simulate refresh (in real app, you'd fetch new data)
+    setTimeout(() => {
+        location.reload(); // Reload page to get fresh data
+    }, 1000);
+}
+
+// Add hover effects to stats cards
+document.querySelectorAll('.border.rounded.p-3').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        this.style.transition = 'all 0.3s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+    });
+});
+</script>
+
 <?php
 require_once(BASE_PATH . "/template/admin/layouts/footer.php");
 ?>
