@@ -29,35 +29,626 @@
         
         return 'fas fa-newspaper'; // default
     }
+
+    // Function to get category color
+    function getCategoryColor($categoryName) {
+        $categoryName = strtolower($categoryName);
+        
+        if (strpos($categoryName, 'technology') !== false || strpos($categoryName, 'tech') !== false) {
+            return '#667eea';
+        } elseif (strpos($categoryName, 'business') !== false || strpos($categoryName, 'finance') !== false) {
+            return '#fa709a';
+        } elseif (strpos($categoryName, 'sport') !== false || strpos($categoryName, 'sports') !== false) {
+            return '#f093fb';
+        } elseif (strpos($categoryName, 'science') !== false || strpos($categoryName, 'research') !== false) {
+            return '#4facfe';
+        } elseif (strpos($categoryName, 'health') !== false || strpos($categoryName, 'medical') !== false) {
+            return '#43e97b';
+        } elseif (strpos($categoryName, 'entertainment') !== false || strpos($categoryName, 'movie') !== false) {
+            return '#fa8072';
+        } elseif (strpos($categoryName, 'politics') !== false || strpos($categoryName, 'government') !== false) {
+            return '#a8edea';
+        } elseif (strpos($categoryName, 'travel') !== false || strpos($categoryName, 'tourism') !== false) {
+            return '#ffecd2';
+        } elseif (strpos($categoryName, 'food') !== false || strpos($categoryName, 'cooking') !== false) {
+            return '#fed6e3';
+        } elseif (strpos($categoryName, 'education') !== false || strpos($categoryName, 'learning') !== false) {
+            return '#d299c2';
+        }
+        
+        return '#6c757d'; // default gray
+    }
 ?>
 
 <style>
-    /* Minimalistic Post Detail Styles */
-    .post-detail {
-        background: var(--bg-white);
-        padding: 2rem 0;
+    /* Modern Post Layout Styles */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --shadow-light: 0 2px 20px rgba(0,0,0,0.08);
+        --shadow-medium: 0 8px 40px rgba(0,0,0,0.12);
+        --shadow-hover: 0 15px 60px rgba(0,0,0,0.15);
+        --border-radius: 20px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
-    .post-header {
-        border-bottom: 1px solid var(--border-light);
-        padding-bottom: 1.5rem;
-        margin-bottom: 2rem;
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.7;
+        color: #2d3748;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        min-height: 100vh;
     }
-    
-    .post-title {
-        color: var(--text-primary);
+
+    /* Hero Section */
+    .post-hero {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 80px 0 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .post-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .post-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    .category-badge-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        margin-bottom: 20px;
+    }
+
+    .category-badge-hero:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .post-title-hero {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .post-meta-hero {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Main Content Container */
+    .post-content-wrapper {
+        margin-top: 40px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .post-main-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-medium);
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+    .post-featured-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+
+    .post-content-body {
+        padding: 50px;
+    }
+
+    .post-content-text {
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: #4a5568;
+    }
+
+    .post-content-text p {
+        margin-bottom: 1.8rem;
+    }
+
+    .post-content-text h2, 
+    .post-content-text h3, 
+    .post-content-text h4 {
+        color: #2d3748;
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
         font-weight: 700;
-        line-height: 1.3;
-        margin-bottom: 1rem;
-        font-size: 2.25rem;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
+    }
+
+    .post-content-text h2 {
+        font-size: 2rem;
+        border-left: 4px solid #667eea;
+        padding-left: 20px;
+    }
+
+    .post-content-text img {
         max-width: 100%;
-        box-sizing: border-box;
+        height: auto;
+        border-radius: 15px;
+        margin: 2rem auto;
+        display: block;
+        box-shadow: var(--shadow-light);
+    }
+
+    .post-content-text blockquote {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-left: 5px solid #667eea;
+        padding: 25px 30px;
+        margin: 2rem 0;
+        border-radius: 0 15px 15px 0;
+        font-style: italic;
+        font-size: 1.3rem;
+        color: #4a5568;
+        position: relative;
+    }
+
+    .post-content-text blockquote::before {
+        content: '"';
+        font-size: 4rem;
+        color: #667eea;
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        font-family: Georgia, serif;
+    }
+
+    /* Share Section */
+    .share-section {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        padding: 40px;
+        border-radius: var(--border-radius);
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    .share-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 25px;
+    }
+
+    .share-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .share-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 25px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        border: none;
+        font-size: 0.95rem;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .share-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-hover);
+        text-decoration: none;
+        color: white;
+    }
+
+    .share-btn:active {
+        transform: translateY(-1px);
+    }
+
+    .share-btn.facebook { 
+        background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%); 
+        color: white; 
     }
     
+    .share-btn.facebook:hover {
+        background: linear-gradient(135deg, #166fe5 0%, #3d9cec 100%);
+        color: white;
+    }
+    
+    .share-btn.twitter { 
+        background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%); 
+        color: white; 
+    }
+    
+    .share-btn.twitter:hover {
+        background: linear-gradient(135deg, #1a94e0 0%, #0c7bc7 100%);
+        color: white;
+    }
+    
+    .share-btn.whatsapp { 
+        background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); 
+        color: white; 
+    }
+    
+    .share-btn.whatsapp:hover {
+        background: linear-gradient(135deg, #22c55e 0%, #107c70 100%);
+        color: white;
+    }
+    
+    .share-btn.copy { 
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%); 
+        color: white; 
+    }
+    
+    .share-btn.copy:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #3e464d 100%);
+        color: white;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: var(--transition);
+    }
+
+    .sidebar-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .sidebar-card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 20px 25px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sidebar-card-body {
+        padding: 25px;
+    }
+
+    .sidebar-post-item {
+        display: flex;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid #e2e8f0;
+        transition: var(--transition);
+    }
+
+    .sidebar-post-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .sidebar-post-item:hover {
+        transform: translateX(5px);
+    }
+
+    .sidebar-post-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .sidebar-post-content h6 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        color: #2d3748;
+    }
+
+    .sidebar-post-content h6 a {
+        color: #2d3748;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .sidebar-post-content h6 a:hover {
+        color: #667eea;
+    }
+
+    .sidebar-post-meta {
+        color: #718096;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Comments Section */
+    .comments-section {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+        padding: 50px;
+        margin-top: 40px;
+    }
+
+    .comments-header {
+        border-bottom: 3px solid #e2e8f0;
+        padding-bottom: 20px;
+        margin-bottom: 40px;
+    }
+
+    .comments-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+
+    .comment-item {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-left: 4px solid #667eea;
+        transition: var(--transition);
+    }
+
+    .comment-item:hover {
+        transform: translateX(5px);
+        box-shadow: var(--shadow-light);
+    }
+
+    .comment-avatar {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .comment-author {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 5px;
+    }
+
+    .comment-date {
+        color: #718096;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .comment-content {
+        color: #4a5568;
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+
+    /* Comment Form */
+    .comment-form {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-radius: var(--border-radius);
+        padding: 40px;
+        margin-top: 40px;
+    }
+
+    .comment-form-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px 20px;
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    /* No Comments State */
+    .no-comments {
+        text-align: center;
+        padding: 60px 40px;
+        color: #718096;
+    }
+
+    .no-comments i {
+        color: #cbd5e0;
+        margin-bottom: 20px;
+    }
+
+    /* Auth Prompt */
+    .auth-prompt {
+        background: var(--accent-gradient);
+        color: white;
+        border-radius: var(--border-radius);
+        padding: 40px;
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .auth-prompt h5 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .auth-prompt .btn {
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        margin: 0 10px;
+    }
+
+    .btn-light {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-outline-light {
+        border: 2px solid rgba(255,255,255,0.5);
+        color: white;
+        background: transparent;
+    }
+
+    .btn-light:hover, .btn-outline-light:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .post-title-hero {
+            font-size: 2.5rem;
+        }
+        
+        .post-content-body {
+            padding: 30px 25px;
+        }
+        
+        .share-buttons {
+            justify-content: center;
+        }
+        
+        .share-btn {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+        
+        .comments-section {
+            padding: 30px 25px;
+        }
+        
+        .comment-form {
+            padding: 30px 25px;
+        }
+        
+        .post-meta-hero {
+            gap: 20px;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .post-title-hero {
+            font-size: 2rem;
+        }
+        
+        .post-content-body {
+            padding: 25px 20px;
+        }
+        
+        .share-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .share-btn {
+            width: 200px;
+            justify-content: center;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .fade-in-up:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in-up:nth-child(3) { animation-delay: 0.2s; }
+    .fade-in-up:nth-child(4) { animation-delay: 0.3s; }
+
     .post-meta {
-        color: var(--text-muted);
         font-size: 0.9rem;
         margin-bottom: 1rem;
     }
@@ -371,87 +962,106 @@
 </style>
 
 <main>
-    <!-- Post Detail Section -->
-    <section class="post-detail py-5">
+    <!-- Hero Section -->
+    <section class="post-hero">
         <div class="container">
-            <div class="row">
-                <!-- Main Content -->
-                <div class="col-md-8">
-                    <div class="post-wrapper">
-                        <article class="post-single">
-                        <!-- Post Header -->
-                        <div class="post-header">
-                            <!-- Breadcrumb -->
-                            <nav aria-label="breadcrumb" class="mb-3">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="<?= url('/') ?>" class="text-decoration-none">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item">
-                                        <a href="<?= url('show-category/' . $post['cat_id']) ?>" class="text-decoration-none">
-                                            <?= $post['category'] ?>
-                                        </a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Article
-                                    </li>
-                                </ol>
-                            </nav>
-
-                            <!-- Category Badge -->
-                            <div class="mb-3">
-                                <a href="<?= url('show-category/' . $post['cat_id']) ?>" class="category-badge">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb" style="background: transparent; margin: 0; padding: 0;">
+                            <li class="breadcrumb-item">
+                                <a href="<?= url('/') ?>" style="color: rgba(255,255,255,0.8);">
+                                    <i class="fas fa-home me-1"></i>Home
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="<?= url('show-category/' . $post['cat_id']) ?>" style="color: rgba(255,255,255,0.8);">
                                     <?= $post['category'] ?>
                                 </a>
-                            </div>
+                            </li>
+                            <li class="breadcrumb-item active" style="color: white;">
+                                Article
+                            </li>
+                        </ol>
+                    </nav>
 
-                            <!-- Post Title -->
-                            <h1 class="post-title"><?= $post['title'] ?></h1>
+                    <!-- Category Badge -->
+                    <a href="<?= url('show-category/' . $post['cat_id']) ?>" class="category-badge-hero">
+                        <i class="<?= getCategoryIcon($post['category']) ?>"></i>
+                        <?= $post['category'] ?>
+                    </a>
 
-                            <!-- Post Meta -->
-                            <div class="post-meta">
-                                By <strong><?= $post['username'] ?></strong> • 
-                                <?= $post['created_at'] ?> • 
-                                <?= $post['comments_count'] ?> Comments
-                            </div>
+                    <!-- Post Title -->
+                    <h1 class="post-title-hero fade-in-up"><?= $post['title'] ?></h1>
+
+                    <!-- Post Meta -->
+                    <div class="post-meta-hero fade-in-up">
+                        <div class="meta-item">
+                            <i class="fas fa-user"></i>
+                            <span>By <strong><?= $post['username'] ?></strong></span>
                         </div>
-                                    <i class="fas fa-eye me-2"></i>
-                                    Views: <?= isset($post['views']) ? $post['views'] : rand(100, 1000) ?>
-                                </div>
-                            </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span><?= date('M d, Y', strtotime($post['created_at'])) ?></span>
                         </div>
+                        <div class="meta-item">
+                            <i class="fas fa-comments"></i>
+                            <span><?= $post['comments_count'] ?> Comments</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-eye"></i>
+                            <span><?= isset($post['views']) ? number_format($post['views']) : rand(500, 5000) ?> Views</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- Main Content -->
+    <section class="post-content-wrapper">
+        <div class="container">
+            <div class="row">
+                <!-- Post Content -->
+                <div class="col-lg-8">
+                    <article class="post-main-card fade-in-up">
                         <!-- Featured Image -->
-                        <div class="post-image">
-                            <img src="<?= asset($post['image']) ?>" 
-                                 alt="<?= $post['title'] ?>" 
-                                 class="img-fluid">
-                        </div>
-
+                        <img src="<?= asset($post['image']) ?>" 
+                             alt="<?= $post['title'] ?>" 
+                             class="post-featured-image">
+                        
                         <!-- Post Content -->
-                        <div class="post-content">
-                            <div class="content-body">
-                                <?= $post['body'] ?>
+                        <div class="post-content-body">
+                            <div class="post-content-text">
+                                <?= nl2br($post['body']) ?>
                             </div>
 
-                            <!-- Share Buttons -->
-                            <div class="post-share">
-                                <h5 class="mb-3">
+                            <!-- Share Section -->
+                            <div class="share-section">
+                                <h3 class="share-title">
                                     <i class="fas fa-share-alt me-2"></i>Share this article
-                                </h5>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a href="#" class="btn btn-primary btn-sm">
-                                        <i class="fab fa-facebook-f me-1"></i>Facebook
+                                </h3>
+                                <div class="share-buttons">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>" 
+                                       target="_blank" class="share-btn facebook" onclick="openShareWindow(this.href, 'facebook'); return false;">
+                                        <i class="fab fa-facebook-f"></i>
+                                        <span>Facebook</span>
                                     </a>
-                                    <a href="#" class="btn btn-info btn-sm">
-                                        <i class="fab fa-twitter me-1"></i>Twitter
+                                    <a href="https://twitter.com/intent/tweet?url=<?= urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>&text=<?= urlencode($post['title']) ?>" 
+                                       target="_blank" class="share-btn twitter" onclick="openShareWindow(this.href, 'twitter'); return false;">
+                                        <i class="fab fa-twitter"></i>
+                                        <span>Twitter</span>
                                     </a>
-                                    <a href="#" class="btn btn-success btn-sm">
-                                        <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                                    <a href="https://wa.me/?text=<?= urlencode($post['title'] . ' - http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>" 
+                                       target="_blank" class="share-btn whatsapp" onclick="openShareWindow(this.href, 'whatsapp'); return false;">
+                                        <i class="fab fa-whatsapp"></i>
+                                        <span>WhatsApp</span>
                                     </a>
-                                    <a href="#" class="btn btn-secondary btn-sm">
-                                        <i class="fas fa-copy me-1"></i>Copy Link
-                                    </a>
+                                    <button onclick="copyToClipboard()" class="share-btn copy">
+                                        <i class="fas fa-copy"></i>
+                                        <span>Copy Link</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -459,30 +1069,35 @@
                 </div>
 
                 <!-- Sidebar -->
-                <div class="col-md-4">
-                    <div class="sidebar-sticky">
+                <div class="col-lg-4">
+                    <div class="sticky-top" style="top: 2rem;">
                         <!-- Popular Posts -->
                         <?php if(!empty($popularPosts)) { ?>
-                        <div class="sidebar-card">
+                        <div class="sidebar-card fade-in-up">
                             <div class="sidebar-card-header">
-                                <i class="fas fa-fire me-2"></i>Popular Posts
+                                <i class="fas fa-fire"></i>
+                                <span>Popular Posts</span>
                             </div>
                             <div class="sidebar-card-body">
-                                <?php foreach (array_slice($popularPosts, 0, 5) as $popularPost) { ?>
-                                <div class="sidebar-post-item">
+                                <?php foreach (array_slice($popularPosts, 0, 5) as $index => $popularPost) { ?>
+                                <div class="sidebar-post-item" style="animation-delay: <?= $index * 0.1 ?>s;">
                                     <img src="<?= asset($popularPost['image']) ?>" 
                                          alt="<?= $popularPost['title'] ?>"
                                          class="sidebar-post-img">
                                     <div class="sidebar-post-content">
                                         <h6>
                                             <a href="<?= url('show-post/' . $popularPost['id']) ?>">
-                                                <?= strlen($popularPost['title']) > 50 ? substr($popularPost['title'], 0, 50) . '...' : $popularPost['title'] ?>
+                                                <?= strlen($popularPost['title']) > 60 ? substr($popularPost['title'], 0, 60) . '...' : $popularPost['title'] ?>
                                             </a>
                                         </h6>
                                         <div class="sidebar-post-meta">
-                                            <i class="fas fa-calendar me-1"></i><?= $popularPost['created_at'] ?>
-                                            <span class="ms-2">
-                                                <i class="fas fa-comments me-1"></i><?= $popularPost['comments_count'] ?? 0 ?>
+                                            <span>
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <?= date('M d', strtotime($popularPost['created_at'])) ?>
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-comments"></i>
+                                                <?= $popularPost['comments_count'] ?? 0 ?>
                                             </span>
                                         </div>
                                     </div>
@@ -494,24 +1109,28 @@
 
                         <!-- Related Posts -->
                         <?php if(!empty($relatedPosts)) { ?>
-                        <div class="sidebar-card">
+                        <div class="sidebar-card fade-in-up">
                             <div class="sidebar-card-header">
-                                <i class="fas fa-newspaper me-2"></i>Related Posts
+                                <i class="fas fa-newspaper"></i>
+                                <span>Related Posts</span>
                             </div>
                             <div class="sidebar-card-body">
-                                <?php foreach ($relatedPosts as $relatedPost) { ?>
-                                <div class="sidebar-post-item">
+                                <?php foreach ($relatedPosts as $index => $relatedPost) { ?>
+                                <div class="sidebar-post-item" style="animation-delay: <?= $index * 0.1 ?>s;">
                                     <img src="<?= asset($relatedPost['image']) ?>" 
                                          alt="<?= $relatedPost['title'] ?>"
                                          class="sidebar-post-img">
                                     <div class="sidebar-post-content">
                                         <h6>
                                             <a href="<?= url('show-post/' . $relatedPost['id']) ?>">
-                                                <?= strlen($relatedPost['title']) > 50 ? substr($relatedPost['title'], 0, 50) . '...' : $relatedPost['title'] ?>
+                                                <?= strlen($relatedPost['title']) > 60 ? substr($relatedPost['title'], 0, 60) . '...' : $relatedPost['title'] ?>
                                             </a>
                                         </h6>
                                         <div class="sidebar-post-meta">
-                                            <i class="fas fa-calendar me-1"></i><?= $relatedPost['created_at'] ?>
+                                            <span>
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <?= date('M d', strtotime($relatedPost['created_at'])) ?>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -522,19 +1141,25 @@
 
                         <!-- Categories -->
                         <?php if(!empty($categories)) { ?>
-                        <div class="sidebar-card">
+                        <div class="sidebar-card fade-in-up">
                             <div class="sidebar-card-header">
-                                <i class="fas fa-folder me-2"></i>Categories
+                                <i class="fas fa-folder"></i>
+                                <span>Categories</span>
                             </div>
                             <div class="sidebar-card-body">
-                                <?php foreach ($categories as $category) { ?>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <?php foreach ($categories as $index => $category) { ?>
+                                <div class="d-flex justify-content-between align-items-center mb-3" style="animation-delay: <?= $index * 0.1 ?>s;">
                                     <a href="<?= url('show-category/' . $category['id']) ?>" 
-                                       class="text-decoration-none" 
-                                       style="color: var(--text-primary);">
+                                       class="text-decoration-none d-flex align-items-center gap-2" 
+                                       style="color: #4a5568; font-weight: 500;">
+                                        <i class="<?= getCategoryIcon($category['name']) ?>" 
+                                           style="color: <?= getCategoryColor($category['name']) ?>; width: 16px;"></i>
                                         <?= $category['name'] ?>
                                     </a>
-                                    <span class="badge bg-light text-dark"><?= $category['count'] ?? 0 ?></span>
+                                    <span class="badge rounded-pill" 
+                                          style="background: <?= getCategoryColor($category['name']) ?>; color: white;">
+                                        <?= $category['count'] ?? 0 ?>
+                                    </span>
                                 </div>
                                 <?php } ?>
                             </div>
@@ -543,95 +1168,98 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- Comments Section Row -->
-            <div class="row">
-                <div class="col-12">
-                    <!-- Comments Section -->
-                    <section class="comments-section mt-5" data-aos="fade-up">
-                        <div class="comments-header d-flex align-items-center mb-4">
-                            <h3 class="fw-bold mb-0 me-3">Comments (<?= count($comments) ?>)</h3>
-                            <div class="flex-grow-1 bg-secondary" style="height: 2px;"></div>
-                        </div>
+    <!-- Comments Section -->
+    <section class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="comments-section fade-in-up">
+                    <div class="comments-header">
+                        <h2 class="comments-title">
+                            <i class="fas fa-comments me-3"></i>
+                            Comments (<?= count($comments) ?>)
+                        </h2>
+                        <p style="color: #718096; margin: 0;">Join the conversation and share your thoughts</p>
+                    </div>
 
-                        <!-- Comments List -->
-                        <?php if(!empty($comments)) { ?>
-                        <div class="comments-list mb-5">
-                            <?php foreach ($comments as $index => $comment) { ?>
-                            <div class="comment-item mb-4 p-4 bg-light rounded" 
-                                 data-aos="fade-up" 
-                                 data-aos-delay="<?= $index * 100 ?>">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="comment-avatar rounded-circle d-flex align-items-center justify-content-center"
-                                             style="width: 50px; height: 50px;">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                    <!-- Comments List -->
+                    <?php if(!empty($comments)) { ?>
+                    <div class="comments-list">
+                        <?php foreach ($comments as $index => $comment) { ?>
+                        <div class="comment-item fade-in-up" style="animation-delay: <?= $index * 0.1 ?>s;">
+                            <div class="d-flex gap-3">
+                                <div class="comment-avatar">
+                                    <?= strtoupper(substr($comment['username'], 0, 1)) ?>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="comment-author"><?= $comment['username'] ?></div>
+                                    <div class="comment-date">
+                                        <i class="fas fa-clock me-1"></i>
+                                        <?= date('M d, Y \a\t H:i', strtotime($comment['created_at'])) ?>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <div class="comment-header d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                <h5 class="mb-1"><?= $comment['username'] ?></h5>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-clock me-1"></i><?= $comment['created_at'] ?>
-                                                </small>
-                                            </div>
-                                        </div>
-                                        <div class="comment-content">
-                                            <p class="mb-0"><?= nl2br(htmlspecialchars($comment['comment'])) ?></p>
-                                        </div>
+                                    <div class="comment-content">
+                                        <?= nl2br(htmlspecialchars($comment['comment'])) ?>
                                     </div>
                                 </div>
                             </div>
-                            <?php } ?>
-                        </div>
-                        <?php } else { ?>
-                        <div class="no-comments text-center py-5">
-                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No comments yet</h5>
-                            <p class="text-muted">Be the first to share your thoughts!</p>
                         </div>
                         <?php } ?>
+                    </div>
+                    <?php } else { ?>
+                    <div class="no-comments">
+                        <i class="fas fa-comments fa-4x"></i>
+                        <h4 style="margin: 20px 0 10px; color: #4a5568;">No comments yet</h4>
+                        <p>Be the first to share your thoughts about this article!</p>
+                    </div>
+                    <?php } ?>
 
-                        <!-- Comment Form -->
-                        <?php if(isset($_SESSION['user'])) { ?>
-                        <div class="comment-form">
-                            <h4 class="mb-4">
-                                <i class="fas fa-edit me-2"></i>Add Your Comment
-                            </h4>
-                            <form action="<?= url('comment-store') ?>" method="post" class="needs-validation" novalidate>
-                                <input type="hidden" name="post_id" value="<?= $id ?>">
-                                <div class="mb-3">
-                                    <label for="comment" class="form-label">Your Comment *</label>
-                                    <textarea class="form-control" 
-                                              id="comment" 
-                                              name="comment" 
-                                              rows="5" 
-                                              placeholder="Share your thoughts..."
-                                              required></textarea>
-                                    <div class="invalid-feedback">
-                                        Please provide a valid comment.
-                                    </div>
+                    <!-- Comment Form -->
+                    <?php if(isset($_SESSION['user'])) { ?>
+                    <div class="comment-form">
+                        <h3 class="comment-form-title">
+                            <i class="fas fa-edit"></i>
+                            <span>Leave a Comment</span>
+                        </h3>
+                        <form action="<?= url('comment-store') ?>" method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="post_id" value="<?= $id ?>">
+                            <div class="mb-4">
+                                <label for="comment" class="form-label" style="font-weight: 600; color: #2d3748;">
+                                    Your Comment *
+                                </label>
+                                <textarea class="form-control" 
+                                          id="comment" 
+                                          name="comment" 
+                                          rows="6" 
+                                          placeholder="Share your thoughts about this article..."
+                                          required></textarea>
+                                <div class="invalid-feedback">
+                                    Please provide a valid comment.
                                 </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-2"></i>Post Comment
-                                </button>
-                            </form>
-                        </div>
-                        <?php } else { ?>
-                        <div class="comment-login-prompt text-center p-4 bg-light rounded">
-                            <i class="fas fa-sign-in-alt fa-2x text-muted mb-3"></i>
-                            <h5>Join the Conversation</h5>
-                            <p class="text-muted mb-3">Please log in to leave a comment</p>
-                            <a href="<?= url('login') ?>" class="btn btn-primary me-2">
-                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Post Comment
+                            </button>
+                        </form>
+                    </div>
+                    <?php } else { ?>
+                    <div class="auth-prompt">
+                        <i class="fas fa-sign-in-alt fa-3x mb-3"></i>
+                        <h5>Join the Discussion</h5>
+                        <p style="margin-bottom: 25px; opacity: 0.9;">
+                            Please log in to share your thoughts and engage with other readers
+                        </p>
+                        <div>
+                            <a href="<?= url('login') ?>" class="btn btn-light">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
                             </a>
-                            <a href="<?= url('register') ?>" class="btn btn-outline-primary">
-                                <i class="fas fa-user-plus me-1"></i>Register
+                            <a href="<?= url('register') ?>" class="btn btn-outline-light">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
                             </a>
                         </div>
-                        <?php } ?>
-                    </section>
+                    </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -639,39 +1267,423 @@
 </main>
 
 <script>
-// Form validation
-(function() {
-    'use strict';
-    window.addEventListener('load', function() {
-        var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
-
-// Copy link functionality
+// Enhanced JavaScript functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const copyBtn = document.querySelector('.post-share .btn-warning');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            navigator.clipboard.writeText(window.location.href).then(function() {
-                // Show toast or alert
-                const originalText = copyBtn.innerHTML;
-                copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
-                setTimeout(() => {
-                    copyBtn.innerHTML = originalText;
-                }, 2000);
-            });
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
         });
+    });
+
+    // Smooth scrolling for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Add reading progress indicator
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        z-index: 9999;
+        transition: width 0.3s ease;
+    `;
+    document.body.appendChild(progressBar);
+
+    // Update progress on scroll
+    window.addEventListener('scroll', function() {
+        const article = document.querySelector('.post-main-card');
+        if (article) {
+            const articleTop = article.offsetTop;
+            const articleHeight = article.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const scrollTop = window.pageYOffset;
+            
+            const progress = Math.min(
+                Math.max((scrollTop - articleTop + windowHeight * 0.3) / articleHeight * 100, 0),
+                100
+            );
+            
+            progressBar.style.width = progress + '%';
+        }
+    });
+
+    // Enhanced animations for elements coming into view
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all animated elements
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+
+    // Add hover effects to images
+    document.querySelectorAll('.post-content-text img').forEach(img => {
+        img.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        img.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+
+    // Add click-to-zoom functionality for images
+    document.querySelectorAll('.post-content-text img, .post-featured-image').forEach(img => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', function() {
+            createImageModal(this.src, this.alt);
+        });
+    });
+});
+
+// Copy to clipboard function
+function copyToClipboard() {
+    const url = window.location.href;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            fallbackCopyTextToClipboard(url);
+        });
+    } else {
+        fallbackCopyTextToClipboard(url);
     }
+}
+
+// Fallback copy function
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showToast('Link copied to clipboard!', 'success');
+    } catch (err) {
+        showToast('Failed to copy link', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 50px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        transform: translateX(400px);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    `;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+
+// Image modal function
+function createImageModal(src, alt) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt;
+    img.style.cssText = `
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+    `;
+    
+    modal.appendChild(img);
+    document.body.appendChild(modal);
+    
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+    }, 10);
+    
+    modal.addEventListener('click', function() {
+        modal.style.opacity = '0';
+        img.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            document.body.removeChild(modal);
+        }, 300);
+    });
+    
+    // Prevent scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+    modal.addEventListener('click', function() {
+        document.body.style.overflow = 'auto';
+    });
+}
+
+// Auto-resize textareas
+document.querySelectorAll('textarea').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+Shift+C to copy URL
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        copyToClipboard();
+    }
+    
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        const modal = document.querySelector('[style*="position: fixed"][style*="z-index: 10000"]');
+        if (modal) {
+            modal.click();
+        }
+    }
+});
+
+// Lazy loading for images in sidebar
+if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        imageObserver.observe(img);
+    });
+}
+
+// Social sharing functions
+function openShareWindow(url, platform) {
+    let width = 600;
+    let height = 400;
+    
+    // Customize window size for different platforms
+    switch(platform) {
+        case 'facebook':
+            width = 555;
+            height = 580;
+            break;
+        case 'twitter':
+            width = 600;
+            height = 280;
+            break;
+        case 'whatsapp':
+            // WhatsApp Web opens in same tab
+            window.open(url, '_blank');
+            return;
+    }
+    
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    
+    const shareWindow = window.open(
+        url, 
+        `share_${platform}`,
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+    );
+    
+    if (shareWindow) {
+        shareWindow.focus();
+    }
+}
+
+// Copy to clipboard function
+function copyToClipboard() {
+    const url = window.location.href;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        // Modern approach using Clipboard API
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Link copied to clipboard!', 'success');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            fallbackCopyToClipboard(url);
+        });
+    } else {
+        // Fallback for older browsers
+        fallbackCopyToClipboard(url);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showToast('Link copied to clipboard!', 'success');
+        } else {
+            showToast('Failed to copy link', 'error');
+        }
+    } catch (err) {
+        console.error('Fallback: Could not copy text: ', err);
+        showToast('Failed to copy link', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Enhanced toast notification function
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.share-toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'share-toast';
+    
+    const bgColor = type === 'success' ? '#10b981' : 
+                   type === 'error' ? '#ef4444' : '#3b82f6';
+    
+    const icon = type === 'success' ? '✓' : 
+                type === 'error' ? '✗' : 'ℹ';
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${bgColor};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        font-weight: 500;
+        z-index: 10001;
+        transform: translateX(400px);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        max-width: 300px;
+    `;
+    
+    toast.innerHTML = `
+        <span style="font-size: 16px;">${icon}</span>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Animate out and remove
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                document.body.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Add click animations to share buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+    });
 });
 </script>
 

@@ -4,35 +4,12 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- CKEditor 5 -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <!-- CKEditor 5 removed to avoid duplicate fields -->
     
     <script>
-        // Initialize CKEditor
-        let summaryEditor, bodyEditor;
+        // CKEditor initialization removed to prevent duplicate UI
+        // Using plain textareas instead
         
-        if (document.querySelector('#summary')) {
-            ClassicEditor
-                .create(document.querySelector('#summary'))
-                .then(editor => {
-                    summaryEditor = editor;
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        }
-        
-        if (document.querySelector('#body')) {
-            ClassicEditor
-                .create(document.querySelector('#body'))
-                .then(editor => {
-                    bodyEditor = editor;
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        }
-
         // Sidebar toggle for mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
             const sidebar = document.querySelector('.sidebar');

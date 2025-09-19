@@ -3,8 +3,8 @@
         <div class="container">
             <div class="row">
                 <!-- Popular News -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5 class="text-uppercase fw-bold mb-3">
+                <div class="col-lg-6 col-md-6 mb-4">
+                    <h5 class="text-uppercase fw-bold mb-3 text-white">
                         <i class="fas fa-fire text-danger me-2"></i>Popular News
                     </h5>
                     <ul class="list-unstyled">
@@ -20,41 +20,24 @@
                     </ul>
                 </div>
 
-                <!-- Quick Links -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5 class="text-uppercase fw-bold mb-3">
-                        <i class="fas fa-link text-primary me-2"></i>Quick Links
-                    </h5>
-                    <ul class="list-unstyled">
-                        <?php foreach ($menus as $menu) { ?>
-                        <li class="mb-2">
-                            <a href="<?= $menu['url'] ?>" class="text-light text-decoration-none">
-                                <i class="fas fa-chevron-right me-2 text-primary"></i>
-                                <?= $menu['name'] ?>
-                            </a>
-                        </li>
-                        <?php } ?>
-                    </ul>
-                </div>
-
                 <!-- Contact Info -->
-                <div class="col-lg-4 col-md-12 mb-4">
-                    <h5 class="text-uppercase fw-bold mb-3">
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <h5 class="text-uppercase fw-bold mb-3 text-white">
                         <i class="fas fa-envelope text-warning me-2"></i>Contact Us
                     </h5>
                     <div class="mb-3">
-                        <p class="mb-2">
+                        <p class="mb-2 text-white">
                             <i class="fas fa-phone me-2 text-success"></i>
                             +1 958-787-1176
                         </p>
-                        <p class="mb-2">
+                        <p class="mb-2 text-white">
                             <i class="fas fa-envelope me-2 text-info"></i>
                             admin@onlinenews.com
                         </p>
                     </div>
                     
                     <!-- Social Media -->
-                    <h6 class="fw-bold mb-2">Follow Us</h6>
+                    <h6 class="fw-bold mb-2 text-white">Follow Us</h6>
                     <div class="d-flex gap-2">
                         <a href="#" class="btn btn-outline-light btn-sm">
                             <i class="fab fa-facebook-f"></i>
@@ -77,19 +60,13 @@
 
             <!-- Footer Bottom -->
             <hr class="my-4">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <p class="mb-0">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0 text-white">
                         <i class="far fa-copyright me-1"></i>
                         <script>document.write(new Date().getFullYear());</script> 
                         Online News Site. All rights reserved.
                     </p>
-                </div>
-                <div class="col-md-4 text-md-end mt-2 mt-md-0">
-                    <small class="text-muted">
-                        <i class="fas fa-code me-1"></i>
-                        Redesigned with Bootstrap 5
-                    </small>
                 </div>
             </div>
         </div>
