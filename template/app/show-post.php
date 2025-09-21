@@ -327,6 +327,343 @@
         color: white;
     }
 
+    /* MOST RELATED ARTICLES Section - Style like MOST VIEWED */
+    .most-viewed-section {
+        margin: 3rem 0;
+    }
+
+    .most-viewed-header {
+        background: transparent;
+        color: #3b82f6;
+        padding: 0 0 1rem 0;
+        margin-bottom: 0;
+        border-radius: 0;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 3px solid #3b82f6;
+    }
+
+    .most-viewed-header::before {
+        display: none;
+    }
+
+    @keyframes move-stripes {
+        0% { background-position: 0 0; }
+        100% { background-position: 40px 40px; }
+    }
+
+    .most-viewed-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin: 0;
+        text-transform: uppercase;
+        position: relative;
+        z-index: 2;
+    }
+
+    .most-viewed-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-top: 1rem;
+    }
+
+    .most-viewed-card {
+        display: flex;
+        position: relative;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .most-viewed-card:last-child {
+        border-bottom: none;
+    }
+
+    .most-viewed-card:hover {
+        background: #f8fafc;
+        transform: translateX(5px);
+    }
+
+    .most-viewed-image {
+        width: 120px;
+        height: 90px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-right: 1rem;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .most-viewed-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .most-viewed-card:hover .most-viewed-image img {
+        transform: scale(1.1);
+    }
+
+    .similarity-badge-corner {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(0,0,0,0.8);
+        color: #ffd700;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .most-viewed-content {
+        flex: 1;
+        padding-top: 0.5rem;
+    }
+
+    .most-viewed-article-title {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+        color: #1f2937;
+    }
+
+    .most-viewed-article-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .most-viewed-article-title a:hover {
+        color: #3b82f6;
+    }
+
+    .most-viewed-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .most-viewed-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .most-viewed-excerpt {
+        font-size: 0.85rem;
+        color: #6b7280;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .most-viewed-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .most-viewed-card {
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .most-viewed-image {
+            width: 100%;
+            height: 150px;
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Related Articles Section */
+    .related-articles-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px;
+        border-radius: var(--border-radius);
+        margin: 40px 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .related-articles-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/></svg>') repeat;
+        animation: float 20s linear infinite;
+    }
+
+    .related-articles-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .ai-badge {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: #1a202c;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .related-articles-grid {
+        display: grid;
+        gap: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .related-article-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 25px;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .related-article-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .related-article-content {
+        flex: 1;
+    }
+
+    .related-article-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+
+    .related-article-title a {
+        color: white;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .related-article-title a:hover {
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .related-article-summary {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+
+    .related-article-meta {
+        display: flex;
+        gap: 20px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .similarity-score {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255, 215, 0, 0.2);
+        padding: 4px 10px;
+        border-radius: 12px;
+        color: #ffd700;
+        font-weight: 600;
+    }
+
+    .related-category {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .related-article-arrow {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.2rem;
+        transition: var(--transition);
+    }
+
+    .related-article-card:hover .related-article-arrow {
+        transform: translateX(5px);
+        color: #ffd700;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes float {
+        from { transform: translateX(-100px); }
+        to { transform: translateX(100px); }
+    }
+
+    /* Responsive Design for Related Articles */
+    @media (min-width: 768px) {
+        .related-articles-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .related-articles-section {
+            padding: 25px 20px;
+        }
+        
+        .related-article-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+        
+        .related-article-meta {
+            justify-content: center;
+        }
+    }
+
     /* Sidebar Styles */
     .sidebar-card {
         background: white;
@@ -573,6 +910,51 @@
         background: rgba(255,255,255,0.3);
         color: white;
         transform: translateY(-2px);
+    }
+
+    /* Comment Messages */
+    .comment-message {
+        border-radius: 12px;
+        padding: 20px 25px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 500;
+        animation: slideDown 0.5s ease-out;
+    }
+
+    .comment-message.success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left: 4px solid #28a745;
+        color: #155724;
+    }
+
+    .comment-message.error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        border-left: 4px solid #dc3545;
+        color: #721c24;
+    }
+
+    .comment-message.warning {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border-left: 4px solid #ffc107;
+        color: #856404;
+    }
+
+    .comment-message i {
+        font-size: 1.2rem;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     /* Responsive Design */
@@ -1064,6 +1446,94 @@
                                     </button>
                                 </div>
                             </div>
+
+                            <!-- Related Articles Section -->
+                            <?php 
+                            // Get related articles using ML recommendation
+                            require_once(BASE_PATH . '/lib/ArticleRecommendation.php');
+                            $relatedArticles = getArticleRecommendations($post['title'], $post['cat_id'], $post['id'], 3);
+                            
+                            if (!empty($relatedArticles)) {
+                                // Get full post data for each recommendation
+                                $host = 'localhost';
+                                $dbname = 'news-project';
+                                $username = 'root';
+                                $password = '';
+                                
+                                $relatedPosts = [];
+                                foreach($relatedArticles as $article) {
+                                    try {
+                                        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+                                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                        
+                                        $stmt = $pdo->prepare("SELECT p.*, u.username, c.name as category 
+                                                             FROM posts p 
+                                                             LEFT JOIN users u ON p.user_id = u.id 
+                                                             LEFT JOIN categories c ON p.cat_id = c.id 
+                                                             WHERE p.id = ?");
+                                        $stmt->execute([$article['id']]);
+                                        $postData = $stmt->fetch(PDO::FETCH_ASSOC);
+                                        
+                                        if($postData) {
+                                            $postData['similarity_score'] = $article['similarity_score'];
+                                            $relatedPosts[] = $postData;
+                                        }
+                                    } catch(PDOException $e) {
+                                        continue;
+                                    }
+                                }
+                            ?>
+                            
+                            <!-- AI Related Articles Section - Style like MOST VIEWED -->
+                            <div class="most-viewed-section mt-5">
+                                <!-- Blue Header Bar -->
+                                <div class="most-viewed-header">
+                                    <h3 class="most-viewed-title">
+                                        MOST RELATED ARTICLES
+                                    </h3>
+                                </div>
+                                
+                                <!-- Articles Grid -->
+                                <div class="most-viewed-grid">
+                                    <?php foreach ($relatedPosts as $index => $relatedPost) { ?>
+                                    <div class="most-viewed-card">
+                                        <!-- Article Image -->
+                                        <div class="most-viewed-image">
+                                            <img src="<?= asset($relatedPost['image']) ?>" alt="<?= htmlspecialchars($relatedPost['title']) ?>">
+                                            
+                                            <!-- Similarity Score Badge -->
+                                            <div class="similarity-badge-corner">
+                                                <i class="fas fa-star"></i>
+                                                <?= number_format($relatedPost['similarity_score'] * 100, 0) ?>%
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Article Content -->
+                                        <div class="most-viewed-content">
+                                            <h4 class="most-viewed-article-title">
+                                                <a href="<?= url('show-post/' . $relatedPost['id']) ?>">
+                                                    <?= htmlspecialchars($relatedPost['title']) ?>
+                                                </a>
+                                            </h4>
+                                            
+                                            <div class="most-viewed-meta">
+                                                <span class="author">
+                                                    <i class="fas fa-user"></i> <?= $relatedPost['username'] ?>
+                                                </span>
+                                                <span class="views">
+                                                    <i class="fas fa-eye"></i> <?= $relatedPost['view'] ?? 0 ?> views
+                                                </span>
+                                            </div>
+                                            
+                                            <p class="most-viewed-excerpt">
+                                                <?= isset($relatedPost['summary']) ? substr(strip_tags($relatedPost['summary']), 0, 80) : substr(strip_tags($relatedPost['body']), 0, 80) ?>...
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <?php } ?>
                         </div>
                     </article>
                 </div>
@@ -1218,6 +1688,16 @@
                     <!-- Comment Form -->
                     <?php if(isset($_SESSION['user'])) { ?>
                     <div class="comment-form">
+                        <?php if(isset($_SESSION['comment_message'])) { ?>
+                        <div class="comment-message <?= $_SESSION['comment_message']['type'] ?>">
+                            <i class="fas fa-<?= $_SESSION['comment_message']['type'] === 'success' ? 'check-circle' : ($_SESSION['comment_message']['type'] === 'warning' ? 'exclamation-circle' : 'exclamation-triangle') ?>"></i>
+                            <span><?= $_SESSION['comment_message']['text'] ?></span>
+                        </div>
+                        <?php 
+                            // Clear message after display
+                            unset($_SESSION['comment_message']); 
+                        } ?>
+                        
                         <h3 class="comment-form-title">
                             <i class="fas fa-edit"></i>
                             <span>Leave a Comment</span>

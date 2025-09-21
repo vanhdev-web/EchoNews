@@ -243,6 +243,9 @@ uri('admin/user/permission/{id}', 'Admin\User', 'permission');
 //comments
 uri('admin/comment', 'Admin\Comment', 'index');
 uri('admin/comment/change-status/{id}', 'Admin\Comment', 'changeStatus');
+uri('admin/comment/approve/{id}', 'Admin\Comment', 'approve');
+uri('admin/comment/unapprove/{id}', 'Admin\Comment', 'unapprove');
+uri('admin/comment/delete/{id}', 'Admin\Comment', 'delete');
 
 // menu
 

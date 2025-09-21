@@ -87,14 +87,33 @@ class Home{
 
                 $post =$db->select('SELECT posts.*, (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) AS comments_count, (SELECT username FROM users WHERE users.id = posts.user_id) AS username, (SELECT name FROM categories WHERE categories.id = posts.cat_id) AS category FROM posts WHERE id = ?', [$id])->fetch();
 
-                // Tăng view count khi người dùng xem bài viết
+                // Tăng view count chỉ một lần mỗi user cho mỗi bài viết (sử dụng cookie + session)
                 if($post) {
-                        $currentViews = $post['view'];
-                        $newViews = $currentViews + 1;
-                        $db->update('posts', $id, ['view'], [$newViews]);
+                        // Khởi tạo session tracking nếu chưa có
+                        if (!isset($_SESSION['viewed_posts'])) {
+                                $_SESSION['viewed_posts'] = [];
+                        }
                         
-                        // Cập nhật view count trong biến $post để hiển thị đúng
-                        $post['view'] = $newViews;
+                        // Tạo cookie key cho bài viết này (tồn tại 24 giờ)
+                        $viewCookieName = 'viewed_post_' . $id;
+                        $hasViewedInCookie = isset($_COOKIE[$viewCookieName]);
+                        $hasViewedInSession = in_array($id, $_SESSION['viewed_posts']);
+                        
+                        // Chỉ tăng view nếu chưa xem bài này trong 24h qua (cookie) hoặc session hiện tại
+                        if (!$hasViewedInCookie && !$hasViewedInSession) {
+                                $currentViews = $post['view'];
+                                $newViews = $currentViews + 1;
+                                $db->update('posts', $id, ['view'], [$newViews]);
+                                
+                                // Đánh dấu bài viết này đã được xem
+                                $_SESSION['viewed_posts'][] = $id;
+                                
+                                // Tạo cookie tồn tại 24 giờ để tránh spam view
+                                setcookie($viewCookieName, '1', time() + (24 * 60 * 60), '/');
+                                
+                                // Cập nhật view count trong biến $post để hiển thị đúng
+                                $post['view'] = $newViews;
+                        }
                 }
 
                 $comments = $db->select("SELECT *, (SELECT username FROM users WHERE users.id = comments.user_id) AS username FROM comments WHERE post_id = ? AND status = 'approved'", [$id])->fetchAll();
@@ -125,7 +144,41 @@ class Home{
                         if($_SESSION['user'] != null)
                         {
                                 $db = new DataBase();
-                                $db->insert('comments', ['user_id', 'post_id', 'comment'], [$_SESSION['user'], $request['post_id'], $request['comment']]);
+                                
+                                // Load toxic comment detector
+                                require_once BASE_PATH . '/lib/ToxicCommentDetector.php';
+                                $toxicDetector = new \ToxicCommentDetector();
+                                
+                                // Check comment toxicity
+                                $toxicResult = $toxicDetector->checkComment($request['comment']);
+                                
+                                // Determine comment status based on toxicity
+                                if ($toxicResult['should_approve']) {
+                                    // Non-toxic comment - auto approve and show immediately
+                                    $status = 'approved';
+                                    $message = [
+                                        'type' => 'success',
+                                        'text' => 'Bình luận của bạn đã được đăng thành công!'
+                                    ];
+                                } else {
+                                    // Toxic comment - save but mark as pending for admin review
+                                    $status = 'pending';
+                                    $toxicPercent = round($toxicResult['toxic_probability'] * 100, 1);
+                                    $message = [
+                                        'type' => 'warning',
+                                        'text' => "Bình luận của bạn đang được kiểm duyệt (phát hiện nội dung nhạy cảm: {$toxicPercent}%). Bình luận sẽ hiển thị sau khi admin phê duyệt."
+                                    ];
+                                }
+                                
+                                // Insert comment with appropriate status
+                                $db->insert('comments', 
+                                    ['user_id', 'post_id', 'comment', 'status'], 
+                                    [$_SESSION['user'], $request['post_id'], $request['comment'], $status]
+                                );
+                                
+                                // Set message for user
+                                $_SESSION['comment_message'] = $message;
+                                
                                 $this->redirectBack();
                         }
                         else{
