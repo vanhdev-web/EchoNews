@@ -1449,39 +1449,35 @@
 
                             <!-- Related Articles Section -->
                             <?php 
-                            // Get related articles using ML recommendation
-                            require_once(BASE_PATH . '/lib/ArticleRecommendation.php');
-                            $relatedArticles = getArticleRecommendations($post['title'], $post['cat_id'], $post['id'], 3);
+                            // Get related articles from same category, ordered by views and recency
+                            $relatedPosts = $db->select("
+                                SELECT p.*, u.username, c.name as category 
+                                FROM posts p 
+                                LEFT JOIN users u ON p.user_id = u.id 
+                                LEFT JOIN categories c ON p.cat_id = c.id 
+                                WHERE p.cat_id = ? AND p.id != ? AND p.status = 1 
+                                ORDER BY p.view DESC, p.created_at DESC 
+                                LIMIT 3
+                            ", [$post['cat_id'], $post['id']]);
                             
-                            if (!empty($relatedArticles)) {
-                                // Get full post data for each recommendation
-                                $host = 'localhost';
-                                $dbname = 'news-project';
-                                $username = 'root';
-                                $password = '';
+                            // If not enough articles in same category, get popular articles from other categories
+                            if (!$relatedPosts || $relatedPosts->rowCount() < 3) {
+                                $additionalPosts = $db->select("
+                                    SELECT p.*, u.username, c.name as category 
+                                    FROM posts p 
+                                    LEFT JOIN users u ON p.user_id = u.id 
+                                    LEFT JOIN categories c ON p.cat_id = c.id 
+                                    WHERE p.id != ? AND p.status = 1 
+                                    ORDER BY p.view DESC, p.created_at DESC 
+                                    LIMIT 3
+                                ", [$post['id']]);
                                 
-                                $relatedPosts = [];
-                                foreach($relatedArticles as $article) {
-                                    try {
-                                        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-                                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                        
-                                        $stmt = $pdo->prepare("SELECT p.*, u.username, c.name as category 
-                                                             FROM posts p 
-                                                             LEFT JOIN users u ON p.user_id = u.id 
-                                                             LEFT JOIN categories c ON p.cat_id = c.id 
-                                                             WHERE p.id = ?");
-                                        $stmt->execute([$article['id']]);
-                                        $postData = $stmt->fetch(PDO::FETCH_ASSOC);
-                                        
-                                        if($postData) {
-                                            $postData['similarity_score'] = $article['similarity_score'];
-                                            $relatedPosts[] = $postData;
-                                        }
-                                    } catch(PDOException $e) {
-                                        continue;
-                                    }
+                                if ($additionalPosts && $additionalPosts->rowCount() > 0) {
+                                    $relatedPosts = $additionalPosts;
                                 }
+                            }
+                            
+                            if ($relatedPosts && $relatedPosts->rowCount() > 0) {
                             ?>
                             
                             <!-- AI Related Articles Section - Style like MOST VIEWED -->
@@ -1489,7 +1485,7 @@
                                 <!-- Blue Header Bar -->
                                 <div class="most-viewed-header">
                                     <h3 class="most-viewed-title">
-                                        MOST RELATED ARTICLES
+                                        RELATED ARTICLES
                                     </h3>
                                 </div>
                                 
@@ -1501,10 +1497,10 @@
                                         <div class="most-viewed-image">
                                             <img src="<?= asset($relatedPost['image']) ?>" alt="<?= htmlspecialchars($relatedPost['title']) ?>">
                                             
-                                            <!-- Similarity Score Badge -->
+                                            <!-- Category Badge -->
                                             <div class="similarity-badge-corner">
-                                                <i class="fas fa-star"></i>
-                                                <?= number_format($relatedPost['similarity_score'] * 100, 0) ?>%
+                                                <i class="fas fa-folder"></i>
+                                                <?= htmlspecialchars($relatedPost['category']) ?>
                                             </div>
                                         </div>
                                         
