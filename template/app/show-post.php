@@ -1573,37 +1573,7 @@
                         </div>
                         <?php } ?>
 
-                        <!-- Related Posts -->
-                        <?php if(!empty($relatedPosts)) { ?>
-                        <div class="sidebar-card fade-in-up">
-                            <div class="sidebar-card-header">
-                                <i class="fas fa-newspaper"></i>
-                                <span>Related Posts</span>
-                            </div>
-                            <div class="sidebar-card-body">
-                                <?php foreach ($relatedPosts as $index => $relatedPost) { ?>
-                                <div class="sidebar-post-item" style="animation-delay: <?= $index * 0.1 ?>s;">
-                                    <img src="<?= asset($relatedPost['image']) ?>" 
-                                         alt="<?= $relatedPost['title'] ?>"
-                                         class="sidebar-post-img">
-                                    <div class="sidebar-post-content">
-                                        <h6>
-                                            <a href="<?= url('show-post/' . $relatedPost['id']) ?>">
-                                                <?= strlen($relatedPost['title']) > 60 ? substr($relatedPost['title'], 0, 60) . '...' : $relatedPost['title'] ?>
-                                            </a>
-                                        </h6>
-                                        <div class="sidebar-post-meta">
-                                            <span>
-                                                <i class="fas fa-calendar-alt"></i>
-                                                <?= date('M d', strtotime($relatedPost['created_at'])) ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php } ?>
-                            </div>
-                        </div>
-                        <?php } ?>
+
 
                         <!-- Categories -->
                         <?php if(!empty($categories)) { ?>
