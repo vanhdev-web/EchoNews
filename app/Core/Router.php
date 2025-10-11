@@ -202,10 +202,15 @@ class Router
             $uri = substr($uri, 0, $pos);
         }
         
-        // Remove base path (OnlineNewsSite)
-        $basePath = '/OnlineNewsSite';
-        if (strpos($uri, $basePath) === 0) {
-            $uri = substr($uri, strlen($basePath));
+        // Dynamically determine and remove base path
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $scriptDir = dirname($scriptName);
+        
+        // Only remove base path if it's not the root directory
+        if ($scriptDir !== '/' && $scriptDir !== '\\' && !empty($scriptDir)) {
+            if (strpos($uri, $scriptDir) === 0) {
+                $uri = substr($uri, strlen($scriptDir));
+            }
         }
         
         return $this->normalizeUri($uri);

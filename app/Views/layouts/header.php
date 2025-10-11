@@ -476,6 +476,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="d-flex justify-content-end align-items-center">
+                        <!-- Debug: Login URL = <?= url('login') ?> -->
                         <a href="<?= url('login') ?>" class="btn btn-outline-primary btn-sm me-2">
                             <i class="fas fa-sign-in-alt me-1"></i>Sign In
                         </a>

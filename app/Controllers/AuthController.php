@@ -24,6 +24,9 @@ class AuthController extends BaseController
      */
     public function loginForm()
     {
+        // Debug output
+        error_log("AuthController::loginForm() called - REQUEST_URI: " . $_SERVER['REQUEST_URI']);
+        
         // Redirect if already logged in
         if (isset($_SESSION['user'])) {
             return $this->redirect('');
