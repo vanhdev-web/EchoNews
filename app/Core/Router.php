@@ -156,7 +156,7 @@ class Router
         $parameters = $route['parameters'];
         
         // Add namespace if not present
-        if (strpos($controllerClass, '\\') === false) {
+        if (strpos($controllerClass, 'App\\Controllers\\') !== 0) {
             $controllerClass = 'App\\Controllers\\' . $controllerClass;
         }
         
@@ -170,8 +170,11 @@ class Router
             throw new \Exception("Method {$action} not found in {$controllerClass}");
         }
         
-        // Call controller method with parameters
-        call_user_func_array([$controller, $action], $parameters);
+        // Call controller method with parameters and echo result
+        $result = call_user_func_array([$controller, $action], $parameters);
+        if ($result !== null) {
+            echo $result;
+        }
     }
     
     /**

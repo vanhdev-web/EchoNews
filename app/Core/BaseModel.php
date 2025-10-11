@@ -88,6 +88,8 @@ abstract class BaseModel
         $fields = array_keys($fillableData);
         $values = array_values($fillableData);
         
+
+        
         return $this->db->insert($this->table, $fields, $values);
     }
     

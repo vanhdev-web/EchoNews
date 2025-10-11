@@ -10,6 +10,11 @@
  */
 function url($path = '')
 {
+    if (!defined('CURRENT_DOMAIN')) {
+        // Fallback if CURRENT_DOMAIN not defined
+        $domain = current_domain() . '/OnlineNewsSite/';
+        define('CURRENT_DOMAIN', $domain);
+    }
     return CURRENT_DOMAIN . ltrim($path, '/');
 }
 
@@ -18,7 +23,15 @@ function url($path = '')
  */
 function asset($path)
 {
-    return CURRENT_DOMAIN . 'public/' . ltrim($path, '/');
+    // Remove leading slash
+    $path = ltrim($path, '/');
+    
+    // If path already starts with 'public/', don't add it again
+    if (strpos($path, 'public/') === 0) {
+        return CURRENT_DOMAIN . $path;
+    }
+    
+    return CURRENT_DOMAIN . 'public/' . $path;
 }
 
 /**

@@ -26,7 +26,7 @@ class AuthController extends BaseController
     {
         // Redirect if already logged in
         if (isset($_SESSION['user'])) {
-            return $this->redirect('/');
+            return $this->redirect('');
         }
         
         return $this->render('auth.login');
@@ -42,7 +42,7 @@ class AuthController extends BaseController
         // Validate input
         $errors = $this->validate($input, [
             'email' => 'required|email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:3'  // Relaxed for existing admin accounts
         ]);
         
         if (!empty($errors)) {
@@ -61,15 +61,21 @@ class AuthController extends BaseController
             $_SESSION['email'] = $user['email'];
             
             // Set admin flag if user has admin permission
-            if ($user['permission'] == 1) {
+            if ($user['permission'] == 'admin' || $user['permission'] == 1) {
                 $_SESSION['admin'] = true;
             }
             
             // Update last login
             $this->userModel->updateLastLogin($user['id']);
             
-            // Redirect to intended page or home
-            $redirectUrl = $_SESSION['intended_url'] ?? '/';
+            // Redirect based on user role
+            if ($user['permission'] == 'admin' || $user['permission'] == 1) {
+                // Admin user - redirect to admin panel - use absolute path to avoid conflicts
+                $redirectUrl = 'admin';
+            } else {
+                // Regular user - redirect to intended page or home
+                $redirectUrl = $_SESSION['intended_url'] ?? '';
+            }
             unset($_SESSION['intended_url']);
             
             return $this->redirect($redirectUrl, 'Welcome back, ' . $user['username'] . '!');
@@ -85,7 +91,7 @@ class AuthController extends BaseController
     {
         // Redirect if already logged in
         if (isset($_SESSION['user'])) {
-            return $this->redirect('/');
+            return $this->redirect('');
         }
         
         return $this->render('auth.register');

@@ -1,8 +1,6 @@
 RewriteEngine On
-RewriteBase /
-RewriteRule ^index.php$ - [L]
-# Allow direct access to test_email.php
-RewriteRule ^test_email\.php$ - [L]
+RewriteBase /OnlineNewsSite/
+RewriteRule ^index_new_mvc\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.+)$ OnlineNewsSite/index.php [QSA,L]
+RewriteRule ^(.*)$ index_new_mvc.php [QSA,L]

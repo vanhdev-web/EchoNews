@@ -15,6 +15,8 @@ class ViewEngine
     public function __construct()
     {
         $this->viewsPath = BASE_PATH . '/app/Views/';
+        // Disable layout by default since views include header/footer themselves
+        $this->layout = null;
     }
     
     /**

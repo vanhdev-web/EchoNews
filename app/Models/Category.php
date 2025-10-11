@@ -114,8 +114,8 @@ class Category extends BaseModel
     {
         $sql = "SELECT 
                     COUNT(*) as total_categories,
-                    SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active_count,
-                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive_count
+                    COUNT(*) as active_count,
+                    0 as inactive_count
                 FROM categories";
         
         $result = $this->db->select($sql);
@@ -165,5 +165,72 @@ class Category extends BaseModel
         $sql = "SELECT COUNT(*) as count FROM posts WHERE cat_id = ? AND status = 1";
         $result = $this->db->select($sql, [$categoryId]);
         return $result ? $result->fetch()['count'] : 0;
+    }
+    
+    /**
+     * Get all categories
+     */
+    public function getAll()
+    {
+        $sql = "SELECT * FROM categories ORDER BY name ASC";
+        $result = $this->db->select($sql);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get category by ID
+     */
+    public function getById($id)
+    {
+        $sql = "SELECT * FROM categories WHERE id = ?";
+        $result = $this->db->select($sql, [$id]);
+        return $result ? $result->fetch() : null;
+    }
+    
+    /**
+     * Get admin categories list with pagination and filters
+     */
+    public function getAdminList($offset = 0, $limit = 10, $search = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "name LIKE ?";
+            $params[] = "%$search%";
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT c.*, 
+                (SELECT COUNT(*) FROM posts p WHERE p.cat_id = c.id) as posts_count
+                FROM categories c 
+                $whereClause
+                ORDER BY c.name ASC 
+                LIMIT $limit OFFSET $offset";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get admin categories count with filters
+     */
+    public function getAdminCount($search = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "name LIKE ?";
+            $params[] = "%$search%";
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT COUNT(*) as total FROM categories $whereClause";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? (int)$result->fetch()['total'] : 0;
     }
 }

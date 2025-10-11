@@ -49,6 +49,12 @@ class DashboardController extends BaseController
         $recentComments = $this->commentModel->getRecent(5);
         $topCommentedPosts = $this->getTopCommentedPosts();
         
+        // Get total views for dashboard
+        $postsViews = $this->postModel->getTotalViews();
+        
+        // Get posts with view count for table
+        $postsWithView = $this->postModel->getPostsWithViews(10);
+        
         return $this->render('admin.dashboard.index', [
             'postStats' => $postStats,
             'userStats' => $userStats,
@@ -57,7 +63,9 @@ class DashboardController extends BaseController
             'viewData' => $viewData,
             'recentPosts' => $recentPosts,
             'recentComments' => $recentComments,
-            'topCommentedPosts' => $topCommentedPosts
+            'topCommentedPosts' => $topCommentedPosts,
+            'postsViews' => $postsViews,
+            'postsWithView' => $postsWithView
         ]);
     }
     

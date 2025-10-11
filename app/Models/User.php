@@ -12,8 +12,7 @@ class User extends BaseModel
 {
     protected $table = 'users';
     protected $fillable = [
-        'first_name', 'last_name', 'username', 
-        'email', 'password', 'permission'
+        'username', 'email', 'password', 'permission'
     ];
     protected $hidden = ['password'];
     
@@ -161,5 +160,88 @@ class User extends BaseModel
         
         $result = $this->db->select($sql);
         return $result ? $result->fetch() : [];
+    }
+    
+    /**
+     * Get users for admin management with pagination
+     */
+    public function getAdminList($offset = 0, $limit = 15, $search = null, $permission = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "(username LIKE ? OR email LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+        
+        if ($permission !== null && $permission !== 'all') {
+            $conditions[] = "permission = ?";
+            $params[] = $permission;
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT id, username, email, permission, created_at, updated_at 
+                FROM users 
+                $whereClause
+                ORDER BY created_at DESC 
+                LIMIT $limit OFFSET $offset";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get admin users count with filters
+     */
+    public function getAdminCount($search = null, $permission = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "(username LIKE ? OR email LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+        
+        if ($permission !== null && $permission !== 'all') {
+            $conditions[] = "permission = ?";
+            $params[] = $permission;
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT COUNT(*) as total FROM users $whereClause";
+        $result = $this->db->select($sql, $params);
+        return $result ? (int)$result->fetch()['total'] : 0;
+    }
+    
+    /**
+     * Get user by ID (for admin)
+     */
+    public function getById($id)
+    {
+        $sql = "SELECT id, username, email, permission, created_at, updated_at 
+                FROM users WHERE id = ?";
+        $result = $this->db->select($sql, [$id]);
+        return $result ? $result->fetch() : null;
+    }
+    
+    /**
+     * Update user (admin function)
+     */
+    public function updateUser($id, $data)
+    {
+        // Hash password if provided
+        if (isset($data['password']) && !empty($data['password'])) {
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+        } else {
+            unset($data['password']); // Don't update password if empty
+        }
+        
+        return $this->update($id, $data);
     }
 }

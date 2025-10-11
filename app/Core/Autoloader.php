@@ -121,5 +121,3 @@ $loader->register();
 // Register namespaces
 $loader->addNamespace('App', BASE_PATH . '/app');
 $loader->addNamespace('Database', BASE_PATH . '/database');
-$loader->addNamespace('Auth', BASE_PATH . '/activities/Auth');
-$loader->addNamespace('Admin', BASE_PATH . '/activities/Admin');

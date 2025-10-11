@@ -13,7 +13,8 @@ class Post extends BaseModel
     protected $table = 'posts';
     protected $fillable = [
         'user_id', 'cat_id', 'title', 'summary', 
-        'body', 'image', 'status', 'view'
+        'body', 'image', 'status', 'view', 'selected',
+        'breaking_news', 'published_at'
     ];
     
     /**
@@ -130,8 +131,8 @@ class Post extends BaseModel
     {
         $sql = "SELECT 
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as published,
-                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as draft
+                    SUM(CASE WHEN status = 'enable' THEN 1 ELSE 0 END) as published,
+                    SUM(CASE WHEN status = 'disable' THEN 1 ELSE 0 END) as draft
                 FROM posts";
         
         $result = $this->db->select($sql);
@@ -148,6 +149,128 @@ class Post extends BaseModel
                 LEFT JOIN users u ON p.user_id = u.id 
                 LEFT JOIN categories c ON p.cat_id = c.id 
                 ORDER BY p.created_at DESC 
+                LIMIT " . (int)$limit;
+        
+        $result = $this->db->select($sql);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get all posts for dropdowns
+     */
+    public function getAll()
+    {
+        $sql = "SELECT id, title FROM posts ORDER BY title ASC";
+        $result = $this->db->select($sql);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get total views across all posts
+     */
+    public function getTotalViews()
+    {
+        $sql = "SELECT SUM(view) as 'SUM(view)' FROM posts";
+        $result = $this->db->select($sql);
+        return $result ? $result->fetch() : ['SUM(view)' => 0];
+    }
+    
+    /**
+     * Get post by ID
+     */
+    public function getById($id)
+    {
+        $sql = "SELECT p.*, u.username, c.name as category_name 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.cat_id = c.id 
+                WHERE p.id = ?";
+        
+        $result = $this->db->select($sql, [$id]);
+        return $result ? $result->fetch() : null;
+    }
+    
+    /**
+     * Get admin posts list with pagination and filters
+     */
+    public function getAdminList($offset = 0, $limit = 10, $search = null, $status = null, $category = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "(p.title LIKE ? OR p.summary LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+        
+        if ($status && $status !== 'all') {
+            $conditions[] = "p.status = ?";
+            $params[] = $status;
+        }
+        
+        if ($category && $category !== 'all') {
+            $conditions[] = "p.cat_id = ?";
+            $params[] = $category;
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT p.*, u.username, c.name as category_name 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.cat_id = c.id 
+                $whereClause
+                ORDER BY p.created_at DESC 
+                LIMIT $limit OFFSET $offset";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get admin posts count with filters
+     */
+    public function getAdminCount($search = null, $status = null, $category = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "(title LIKE ? OR summary LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+        
+        if ($status && $status !== 'all') {
+            $conditions[] = "status = ?";
+            $params[] = $status;
+        }
+        
+        if ($category && $category !== 'all') {
+            $conditions[] = "cat_id = ?";
+            $params[] = $category;
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT COUNT(*) as total FROM posts $whereClause";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? (int)$result->fetch()['total'] : 0;
+    }
+    
+    /**
+     * Get posts with view counts for dashboard
+     */
+    public function getPostsWithViews($limit = 10)
+    {
+        $sql = "SELECT p.*, u.username, c.name as category_name 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.cat_id = c.id 
+                WHERE p.status = 'enable'
+                ORDER BY p.view DESC, p.created_at DESC 
                 LIMIT " . (int)$limit;
         
         $result = $this->db->select($sql);

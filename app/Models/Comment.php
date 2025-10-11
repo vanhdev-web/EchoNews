@@ -100,7 +100,13 @@ class Comment extends BaseModel
         // Set status based on toxicity
         $data['status'] = $toxicResult['should_approve'] ? 'approved' : 'unseen';
         
-        return $this->create($data);
+        $result = $this->create($data);
+        
+        // Return both result and toxicity info
+        return [
+            'success' => $result,
+            'toxic_info' => $toxicResult
+        ];
     }
     
     /**
@@ -112,7 +118,7 @@ class Comment extends BaseModel
                     COUNT(*) as total_comments,
                     SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_count,
                     SUM(CASE WHEN status = 'unseen' THEN 1 ELSE 0 END) as pending_count,
-                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_count,
+                    SUM(CASE WHEN status = 'seen' THEN 1 ELSE 0 END) as seen_count,
                     SUM(CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END) as today_comments
                 FROM comments";
         
@@ -125,7 +131,7 @@ class Comment extends BaseModel
      */
     public function getRecent($limit = 5)
     {
-        $sql = "SELECT c.*, u.username, p.title as post_title
+        $sql = "SELECT c.*, u.username, u.email, p.title as post_title
                 FROM comments c 
                 LEFT JOIN users u ON c.user_id = u.id 
                 LEFT JOIN posts p ON c.post_id = p.id 
@@ -134,6 +140,105 @@ class Comment extends BaseModel
         
         $result = $this->db->select($sql);
         return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get comment by ID
+     */
+    public function getById($id)
+    {
+        $sql = "SELECT c.*, u.username, u.email, p.title as post_title
+                FROM comments c 
+                LEFT JOIN users u ON c.user_id = u.id 
+                LEFT JOIN posts p ON c.post_id = p.id 
+                WHERE c.id = ?";
+        
+        $result = $this->db->select($sql, [$id]);
+        return $result ? $result->fetch() : null;
+    }
+    
+    /**
+     * Get admin comments list with pagination and filters
+     */
+    public function getAdminList($offset = 0, $limit = 15, $search = null, $status = null, $postId = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "(c.comment LIKE ? OR u.username LIKE ? OR p.title LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+        
+        if ($status && $status !== 'all') {
+            $conditions[] = "c.status = ?";
+            $params[] = $status;
+        }
+        
+        if ($postId && $postId !== 'all') {
+            $conditions[] = "c.post_id = ?";
+            $params[] = $postId;
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT c.*, u.username, u.email, p.title as post_title
+                FROM comments c 
+                LEFT JOIN users u ON c.user_id = u.id 
+                LEFT JOIN posts p ON c.post_id = p.id 
+                $whereClause
+                ORDER BY c.created_at DESC 
+                LIMIT $limit OFFSET $offset";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? $result->fetchAll() : [];
+    }
+    
+    /**
+     * Get admin comments count with filters
+     */
+    public function getAdminCount($search = null, $status = null, $postId = null)
+    {
+        $conditions = [];
+        $params = [];
+        
+        if ($search) {
+            $conditions[] = "(c.comment LIKE ? OR u.username LIKE ? OR p.title LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+        
+        if ($status && $status !== 'all') {
+            $conditions[] = "c.status = ?";
+            $params[] = $status;
+        }
+        
+        if ($postId && $postId !== 'all') {
+            $conditions[] = "c.post_id = ?";
+            $params[] = $postId;
+        }
+        
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        
+        $sql = "SELECT COUNT(*) as total 
+                FROM comments c 
+                LEFT JOIN users u ON c.user_id = u.id 
+                LEFT JOIN posts p ON c.post_id = p.id 
+                $whereClause";
+        
+        $result = $this->db->select($sql, $params);
+        return $result ? (int)$result->fetch()['total'] : 0;
+    }
+    
+    /**
+     * Update comment status
+     */
+    public function updateStatus($id, $status)
+    {
+        return $this->update($id, ['status' => $status]);
     }
     
     /**

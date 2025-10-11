@@ -100,8 +100,13 @@ class HomeController extends BaseController
         // Get popular posts for sidebar
         $popularPosts = $this->postModel->getPopular(5);
         
+        // Get all categories for navigation
+        $categories = $this->categoryModel->getWithPostsCount();
+        
         return $this->render('home.show-post', [
+            'id' => $id,
             'post' => $post,
+            'categories' => $categories,  // Add categories for navigation
             'relatedPosts' => $relatedPosts,
             'comments' => $comments,
             'commentsCount' => $commentsCount,
@@ -126,9 +131,14 @@ class HomeController extends BaseController
         $totalPosts = $this->categoryModel->countPosts($id);
         $totalPages = ceil($totalPosts / 12);
         
+        // Get all categories for navigation
+        $categories = $this->categoryModel->getWithPostsCount();
+        
         return $this->render('home.show-category', [
             'category' => $category,
-            'posts' => $posts,
+            'categories' => $categories,  // Add categories for navigation
+            'categoryPosts' => $posts,
+            'posts' => $posts,  // Keep both for compatibility
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalPosts' => $totalPosts
@@ -156,17 +166,43 @@ class HomeController extends BaseController
         
         // Create comment with toxic detection
         $commentData = [
-            'user_id' => $_SESSION['user'],
+            'user_id' => $_SESSION['user']['id'] ?? $_SESSION['user'],
             'post_id' => $input['post_id'],
             'comment' => $this->sanitize($input['comment'])
         ];
         
         $result = $this->commentModel->createWithToxicCheck($commentData);
         
-        if ($result) {
-            return $this->redirectBack('Your comment has been submitted for review.', 'success');
+        if ($result['success']) {
+            $toxicInfo = $result['toxic_info'];
+            
+            if ($toxicInfo['should_approve']) {
+                // Clean comment - auto approved
+                $_SESSION['comment_message'] = [
+                    'text' => 'Your comment has been posted successfully!',
+                    'type' => 'success'
+                ];
+            } else {
+                // Toxic comment - pending review
+                $message = '⚠️ Your comment has been flagged as potentially inappropriate and is pending review. ';
+                $message .= 'Please ensure your comments are respectful and constructive.';
+                $_SESSION['comment_message'] = [
+                    'text' => $message,
+                    'type' => 'warning'
+                ];
+            }
+            
+            $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+            header("Location: " . $referer);
+            exit;
         } else {
-            return $this->redirectBack('Failed to submit comment. Please try again.', 'error');
+            $_SESSION['comment_message'] = [
+                'text' => 'Failed to submit comment. Please try again.',
+                'type' => 'error'
+            ];
+            $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+            header("Location: " . $referer);
+            exit;
         }
     }
     
