@@ -111,9 +111,9 @@ abstract class BaseController
     {
         $this->requireAuth();
         
-        $userPermission = $_SESSION['user']['permission'] ?? 'user';
-        if ($userPermission !== 'admin') {
-            $this->redirect('/', 'Access denied', 'error');
+        // Check admin flag that was set during login
+        if (empty($_SESSION['admin'])) {
+            $this->redirect('/', 'Access denied - Admin privileges required', 'error');
         }
     }
 }

@@ -26,7 +26,12 @@ class AuthController extends BaseController
     {
         // Redirect if already logged in
         if (isset($_SESSION['user'])) {
-            return $this->redirect('');
+            // Check if user is admin
+            if (isset($_SESSION['admin']) && $_SESSION['admin']) {
+                return $this->redirect('admin', 'You are already logged in as admin!');
+            } else {
+                return $this->redirect('', 'You are already logged in!');
+            }
         }
         
         return $this->render('auth.login');
@@ -91,7 +96,12 @@ class AuthController extends BaseController
     {
         // Redirect if already logged in
         if (isset($_SESSION['user'])) {
-            return $this->redirect('');
+            // Check if user is admin
+            if (isset($_SESSION['admin']) && $_SESSION['admin']) {
+                return $this->redirect('admin', 'You are already logged in as admin!');
+            } else {
+                return $this->redirect('', 'You are already logged in!');
+            }
         }
         
         return $this->render('auth.register');

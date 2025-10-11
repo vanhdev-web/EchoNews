@@ -21,19 +21,30 @@ function url($path = '')
 function get_base_path()
 {
     // Handle CLI environment (for development server)
-    if (php_sapi_name() === 'cli' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 8080)) {
+    if (php_sapi_name() === 'cli') {
+        // In CLI mode, check if we set SERVER vars manually for testing
+        if (isset($_SERVER['SCRIPT_NAME']) && $_SERVER['SCRIPT_NAME'] !== '') {
+            $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+            if ($scriptDir !== '/' && $scriptDir !== '\\') {
+                return current_domain() . $scriptDir . '/';
+            }
+        }
+        return current_domain() . '/';
+    }
+    
+    // Handle development server (port 8080)
+    if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 8080) {
         return current_domain() . '/';
     }
     
     // For regular web server, determine base path from script name
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
     
     // Extract directory from script name
     $scriptDir = dirname($scriptName);
     
     // Handle root directory
-    if ($scriptDir === '/' || $scriptDir === '\\') {
+    if ($scriptDir === '/' || $scriptDir === '\\' || $scriptDir === '.') {
         $basePath = current_domain() . '/';
     } else {
         $basePath = current_domain() . $scriptDir . '/';

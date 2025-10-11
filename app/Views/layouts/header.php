@@ -476,12 +476,29 @@
                 </div>
                 <div class="col-md-6">
                     <div class="d-flex justify-content-end align-items-center">
-                        <a href="<?= url('login') ?>" class="btn btn-outline-primary btn-sm me-2">
-                            <i class="fas fa-sign-in-alt me-1"></i>Sign In
-                        </a>
-                        <a href="<?= url('register') ?>" class="btn btn-primary btn-sm">
-                            <i class="fas fa-user-plus me-1"></i>Register
-                        </a>
+                        <?php if(isset($_SESSION['user']) && $_SESSION['user']): ?>
+                            <!-- User is logged in -->
+                            <?php if(isset($_SESSION['admin']) && $_SESSION['admin']): ?>
+                                <a href="<?= url('admin') ?>" class="btn btn-success btn-sm me-2">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Admin Panel
+                                </a>
+                            <?php endif; ?>
+                            <span class="text-muted me-3">
+                                <i class="fas fa-user me-1"></i>
+                                <?= $_SESSION['username'] ?? 'User' ?>
+                            </span>
+                            <a href="<?= url('logout') ?>" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        <?php else: ?>
+                            <!-- User is not logged in -->
+                            <a href="<?= url('login') ?>" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                            </a>
+                            <a href="<?= url('register') ?>" class="btn btn-primary btn-sm">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
