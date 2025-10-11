@@ -11,7 +11,8 @@ define('BASE_PATH', __DIR__);
 // Helper functions (load trước để có current_domain())
 require_once BASE_PATH . '/helpers.php';
 
-define('CURRENT_DOMAIN', current_domain() . '/OnlineNewsSite/');
+// CURRENT_DOMAIN is now dynamically determined in helpers.php
+// No need to define it here anymore
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'news-project');
 define('DB_USERNAME', 'root');

@@ -10,12 +10,36 @@
  */
 function url($path = '')
 {
-    if (!defined('CURRENT_DOMAIN')) {
-        // Fallback if CURRENT_DOMAIN not defined
-        $domain = current_domain() . '/OnlineNewsSite/';
-        define('CURRENT_DOMAIN', $domain);
+    // Get base path dynamically
+    $basePath = get_base_path();
+    return $basePath . ltrim($path, '/');
+}
+
+/**
+ * Get base path dynamically
+ */
+function get_base_path()
+{
+    // Handle CLI environment (for development server)
+    if (php_sapi_name() === 'cli' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 8080)) {
+        return current_domain() . '/';
     }
-    return CURRENT_DOMAIN . ltrim($path, '/');
+    
+    // For regular web server, determine base path from script name
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    
+    // Extract directory from script name
+    $scriptDir = dirname($scriptName);
+    
+    // Handle root directory
+    if ($scriptDir === '/' || $scriptDir === '\\') {
+        $basePath = current_domain() . '/';
+    } else {
+        $basePath = current_domain() . $scriptDir . '/';
+    }
+    
+    return $basePath;
 }
 
 /**
@@ -26,12 +50,15 @@ function asset($path)
     // Remove leading slash
     $path = ltrim($path, '/');
     
+    // Get base path dynamically
+    $basePath = get_base_path();
+    
     // If path already starts with 'public/', don't add it again
     if (strpos($path, 'public/') === 0) {
-        return CURRENT_DOMAIN . $path;
+        return $basePath . $path;
     }
     
-    return CURRENT_DOMAIN . 'public/' . $path;
+    return $basePath . 'public/' . $path;
 }
 
 /**

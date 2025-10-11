@@ -235,6 +235,6 @@ class Router
     public function url($routeName, $parameters = [])
     {
         // Implementation for named routes
-        return CURRENT_DOMAIN . ltrim($routeName, '/');
+        return url($routeName); // Use global url helper
     }
 }
