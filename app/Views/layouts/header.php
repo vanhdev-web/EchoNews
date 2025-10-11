@@ -476,10 +476,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="d-flex justify-content-end align-items-center">
-                        <a href="/OnlineNewsSite/login" class="btn btn-outline-primary btn-sm me-2">
+                        <a href="<?= url('login') ?>" class="btn btn-outline-primary btn-sm me-2">
                             <i class="fas fa-sign-in-alt me-1"></i>Sign In
                         </a>
-                        <a href="/OnlineNewsSite/register" class="btn btn-primary btn-sm">
+                        <a href="<?= url('register') ?>" class="btn btn-primary btn-sm">
                             <i class="fas fa-user-plus me-1"></i>Register
                         </a>
                     </div>

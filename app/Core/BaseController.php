@@ -31,15 +31,73 @@ abstract class BaseController
         exit;
     }
     
-    protected function getInput($key = null)
+    protected function getInput($key = null, $default = null)
     {
         $data = array_merge($_GET, $_POST);
         
         if ($key) {
-            return $data[$key] ?? null;
+            return $data[$key] ?? $default;
         }
         
         return $data;
+    }
+    
+    protected function redirectBack($message = null, $type = 'info')
+    {
+        $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+        
+        if ($message) {
+            $_SESSION['flash_message'] = $message;
+            $_SESSION['flash_type'] = $type;
+        }
+        
+        header('Location: ' . $referer);
+        exit;
+    }
+    
+    protected function validate($input, $rules)
+    {
+        $errors = [];
+        
+        foreach ($rules as $field => $rule) {
+            $value = $input[$field] ?? '';
+            $ruleList = explode('|', $rule);
+            
+            foreach ($ruleList as $singleRule) {
+                if ($singleRule === 'required' && empty($value)) {
+                    $errors[$field][] = ucfirst($field) . ' is required.';
+                } elseif (strpos($singleRule, 'min:') === 0) {
+                    $min = (int) substr($singleRule, 4);
+                    if (strlen($value) < $min) {
+                        $errors[$field][] = ucfirst($field) . " must be at least {$min} characters.";
+                    }
+                } elseif (strpos($singleRule, 'max:') === 0) {
+                    $max = (int) substr($singleRule, 4);
+                    if (strlen($value) > $max) {
+                        $errors[$field][] = ucfirst($field) . " must not exceed {$max} characters.";
+                    }
+                } elseif ($singleRule === 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    $errors[$field][] = ucfirst($field) . ' must be a valid email address.';
+                }
+            }
+        }
+        
+        return $errors;
+    }
+    
+    protected function sanitize($input)
+    {
+        if (is_array($input)) {
+            return array_map([$this, 'sanitize'], $input);
+        }
+        return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+    }
+    
+    protected function json($data)
+    {
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
     }
     
     protected function requireAuth()
